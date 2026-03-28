@@ -20,7 +20,13 @@ import { motion } from "framer-motion";
 const InfoTip = ({ text }: { text: string }) => (
   <Tooltip>
     <TooltipTrigger asChild>
-      <Info className="h-3.5 w-3.5 text-muted-foreground/60 hover:text-primary cursor-help inline ml-1" />
+      <button
+        type="button"
+        className="inline-flex items-center justify-center ml-1 rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1 focus-visible:ring-offset-background"
+        aria-label="More info"
+      >
+        <Info className="h-3.5 w-3.5 text-muted-foreground/60 hover:text-primary cursor-help" />
+      </button>
     </TooltipTrigger>
     <TooltipContent className="max-w-[260px] text-xs">{text}</TooltipContent>
   </Tooltip>
@@ -140,6 +146,8 @@ export function UnitEconomicsPanel() {
                 max={2}
                 step={0.1}
                 className="w-full"
+                aria-label="API Cost Multiplier"
+                aria-valuetext={`${costMultiplier[0].toFixed(1)}x`}
               />
               <div className="flex justify-between text-xs text-muted-foreground mt-1">
                 <span>0.5x (Best)</span>
@@ -749,7 +757,7 @@ export function StressTest() {
                     </p>
                     <span className="text-sm font-mono font-bold text-primary">{s.display}</span>
                   </div>
-                  <Slider value={s.value} onValueChange={s.set} min={s.min} max={s.max} step={s.step} />
+                  <Slider value={s.value} onValueChange={s.set} min={s.min} max={s.max} step={s.step} aria-label={s.label} aria-valuetext={s.display} />
                 </div>
               ))}
             </div>
@@ -763,7 +771,7 @@ export function StressTest() {
                     <InfoTip text={GAUGE_TIPS[g.label]} />
                   </p>
                   <p className="text-2xl font-heading font-bold mb-3">{g.display}</p>
-                  <div className="w-full h-3 rounded-full bg-muted/30 overflow-hidden">
+                  <div className="w-full h-3 rounded-full bg-muted/30 overflow-hidden" role="progressbar" aria-label={g.label} aria-valuenow={Math.round(g.pct)} aria-valuemin={0} aria-valuemax={100} aria-valuetext={`${g.display} — ${g.zone.text}`}>
                     <div
                       className={`h-full rounded-full transition-all duration-500 ${g.color}`}
                       style={{ width: `${g.pct}%` }}
