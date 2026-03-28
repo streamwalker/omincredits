@@ -6,12 +6,25 @@ import { Slider } from "@/components/ui/slider";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
-import { Calculator, BarChart3, TrendingUp, FlaskConical, RotateCcw, ChevronRight } from "lucide-react";
+import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from "@/components/ui/tooltip";
+import { HoverCard, HoverCardTrigger, HoverCardContent } from "@/components/ui/hover-card";
+import { Calculator, BarChart3, TrendingUp, FlaskConical, RotateCcw, ChevronRight, Info } from "lucide-react";
 import {
   AreaChart, Area, BarChart, Bar, PieChart, Pie, Cell, LineChart, Line,
-  XAxis, YAxis, CartesianGrid, ResponsiveContainer, Legend, Tooltip,
+  XAxis, YAxis, CartesianGrid, ResponsiveContainer, Legend, Tooltip as RechartsTooltip,
 } from "recharts";
 import { motion } from "framer-motion";
+
+// ─── InfoTip Helper ───────────────────────────────────────────────────────────
+
+const InfoTip = ({ text }: { text: string }) => (
+  <Tooltip>
+    <TooltipTrigger asChild>
+      <Info className="h-3.5 w-3.5 text-muted-foreground/60 hover:text-primary cursor-help inline ml-1" />
+    </TooltipTrigger>
+    <TooltipContent className="max-w-[260px] text-xs">{text}</TooltipContent>
+  </Tooltip>
+);
 
 // ─── Base Data ────────────────────────────────────────────────────────────────
 
@@ -99,130 +112,153 @@ export function UnitEconomicsPanel() {
   };
 
   return (
-    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
-      <Card className="glass border-border/30 mb-6">
-        <CardContent className="p-8">
-          <div className="flex items-center gap-2 mb-6">
-            <Calculator className="h-5 w-5 text-primary" />
-            <p className="text-xs uppercase tracking-widest text-muted-foreground">Financial Model — Unit Economics</p>
-          </div>
-
-          {/* Interactive Slider */}
-          <div className="mb-8 p-4 rounded-lg bg-muted/20 border border-border/20">
-            <div className="flex items-center justify-between mb-3">
-              <p className="text-sm font-heading font-semibold">API Cost Multiplier</p>
-              <span className="text-sm font-mono font-bold text-primary">{costMultiplier[0].toFixed(1)}x</span>
-            </div>
-            <Slider
-              value={costMultiplier}
-              onValueChange={setCostMultiplier}
-              min={0.5}
-              max={2}
-              step={0.1}
-              className="w-full"
-            />
-            <div className="flex justify-between text-xs text-muted-foreground mt-1">
-              <span>0.5x (Best)</span>
-              <span>1.0x (Current)</span>
-              <span>2.0x (Worst)</span>
-            </div>
-          </div>
-
-          {/* Blended Summary */}
-          <div className="grid grid-cols-3 gap-4 mb-8">
-            <div className="text-center p-3 rounded-lg bg-muted/20">
-              <p className="text-xs text-muted-foreground">Blended Cost/OC</p>
-              <p className="text-lg font-heading font-bold text-red-400">${blendedCost.toFixed(3)}</p>
-            </div>
-            <div className="text-center p-3 rounded-lg bg-muted/20">
-              <p className="text-xs text-muted-foreground">Blended Sell/OC</p>
-              <p className="text-lg font-heading font-bold text-green-400">${blendedSell.toFixed(3)}</p>
-            </div>
-            <div className="text-center p-3 rounded-lg bg-muted/20">
-              <p className="text-xs text-muted-foreground">Blended Margin</p>
-              <p className={`text-lg font-heading font-bold ${blendedMargin > 40 ? "text-green-400" : blendedMargin > 20 ? "text-yellow-400" : "text-red-400"}`}>
-                {blendedMargin.toFixed(1)}%
+    <TooltipProvider delayDuration={200}>
+      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
+        <Card className="glass border-border/30 mb-6">
+          <CardContent className="p-8">
+            <div className="flex items-center gap-2 mb-6">
+              <Calculator className="h-5 w-5 text-primary" />
+              <p className="text-xs uppercase tracking-widest text-muted-foreground">
+                Financial Model — Unit Economics
               </p>
+              <InfoTip text="Unit economics show the per-credit profitability across pricing tiers" />
             </div>
-          </div>
 
-          {/* Charts Row */}
-          <div className="grid md:grid-cols-2 gap-6 mb-8">
-            {/* Pie Chart */}
-            <div>
-              <p className="text-sm font-heading font-semibold mb-3">Revenue Breakdown</p>
-              <div className="h-64">
-                <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Pie data={pieData} cx="50%" cy="50%" innerRadius={50} outerRadius={90} dataKey="value" label={({ name, value }) => `${name}: ${value.toFixed(0)}%`}>
-                      {pieData.map((entry, i) => (
-                        <Cell key={i} fill={entry.fill} />
-                      ))}
-                    </Pie>
-                    <Tooltip contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: "8px" }} />
-                  </PieChart>
-                </ResponsiveContainer>
+            {/* Interactive Slider */}
+            <div className="mb-8 p-4 rounded-lg bg-muted/20 border border-border/20">
+              <div className="flex items-center justify-between mb-3">
+                <p className="text-sm font-heading font-semibold">
+                  API Cost Multiplier
+                  <InfoTip text="Simulates wholesale API price changes. 1x = current rates. Drag to stress-test margins." />
+                </p>
+                <span className="text-sm font-mono font-bold text-primary">{costMultiplier[0].toFixed(1)}x</span>
+              </div>
+              <Slider
+                value={costMultiplier}
+                onValueChange={setCostMultiplier}
+                min={0.5}
+                max={2}
+                step={0.1}
+                className="w-full"
+              />
+              <div className="flex justify-between text-xs text-muted-foreground mt-1">
+                <span>0.5x (Best)</span>
+                <span>1.0x (Current)</span>
+                <span>2.0x (Worst)</span>
               </div>
             </div>
 
-            {/* Bar Chart */}
-            <div>
-              <p className="text-sm font-heading font-semibold mb-3">Cost vs Sell per Tier</p>
-              <ChartContainer config={chartConfig} className="h-64">
-                <BarChart data={barData}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.3} />
-                  <XAxis dataKey="tier" stroke="hsl(var(--muted-foreground))" fontSize={12} />
-                  <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} tickFormatter={(v) => `${v}¢`} />
-                  <ChartTooltip content={<ChartTooltipContent />} />
-                  <Bar dataKey="cost" fill={COLORS.apiCost} radius={[4, 4, 0, 0]} />
-                  <Bar dataKey="sell" fill={COLORS.revenue} radius={[4, 4, 0, 0]} />
-                </BarChart>
-              </ChartContainer>
+            {/* Blended Summary */}
+            <div className="grid grid-cols-3 gap-4 mb-8">
+              <div className="text-center p-3 rounded-lg bg-muted/20">
+                <p className="text-xs text-muted-foreground">
+                  Blended Cost/OC
+                  <InfoTip text="Average cost to fulfill one OmniCredit across all tiers" />
+                </p>
+                <p className="text-lg font-heading font-bold text-red-400">${blendedCost.toFixed(3)}</p>
+              </div>
+              <div className="text-center p-3 rounded-lg bg-muted/20">
+                <p className="text-xs text-muted-foreground">
+                  Blended Sell/OC
+                  <InfoTip text="Average revenue earned per OmniCredit sold" />
+                </p>
+                <p className="text-lg font-heading font-bold text-green-400">${blendedSell.toFixed(3)}</p>
+              </div>
+              <div className="text-center p-3 rounded-lg bg-muted/20">
+                <p className="text-xs text-muted-foreground">
+                  Blended Margin
+                  <InfoTip text="Percentage of revenue retained after API costs. Above 40% = healthy." />
+                </p>
+                <p className={`text-lg font-heading font-bold ${blendedMargin > 40 ? "text-green-400" : blendedMargin > 20 ? "text-yellow-400" : "text-red-400"}`}>
+                  {blendedMargin.toFixed(1)}%
+                </p>
+              </div>
             </div>
-          </div>
 
-          {/* Tier Table */}
-          <Dialog>
-            <DialogTrigger asChild>
-              <Button variant="outline" size="sm" className="mb-4">
-                <ChevronRight className="h-4 w-4 mr-1" /> View Detailed Tier Breakdown
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="max-w-2xl glass">
-              <DialogHeader>
-                <DialogTitle className="font-heading">Credit Pricing Tiers — Detailed</DialogTitle>
-              </DialogHeader>
-              <div className="overflow-x-auto">
-                <Table>
-                  <TableHeader>
-                    <TableRow className="border-border/30">
-                      <TableHead>Package</TableHead>
-                      <TableHead>Credits</TableHead>
-                      <TableHead>Cost/OC</TableHead>
-                      <TableHead>Sell/OC</TableHead>
-                      <TableHead>Margin</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {tiers.map(t => (
-                      <TableRow key={t.price} className="border-border/20">
-                        <TableCell className="font-semibold">${t.price}</TableCell>
-                        <TableCell>{t.credits.toLocaleString()} OC</TableCell>
-                        <TableCell className="text-red-400">${t.adjustedCost.toFixed(3)}</TableCell>
-                        <TableCell className="text-green-400">${t.sellPerOC.toFixed(3)}</TableCell>
-                        <TableCell className={`font-bold ${t.margin > 40 ? "text-green-400" : t.margin > 20 ? "text-yellow-400" : "text-red-400"}`}>
-                          {t.margin.toFixed(1)}%
-                        </TableCell>
+            {/* Charts Row */}
+            <div className="grid md:grid-cols-2 gap-6 mb-8">
+              {/* Pie Chart */}
+              <div>
+                <p className="text-sm font-heading font-semibold mb-3">
+                  Revenue Breakdown
+                  <InfoTip text="How each dollar of credit revenue is allocated" />
+                </p>
+                <div className="h-64">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                      <Pie data={pieData} cx="50%" cy="50%" innerRadius={50} outerRadius={90} dataKey="value" label={({ name, value }) => `${name}: ${value.toFixed(0)}%`}>
+                        {pieData.map((entry, i) => (
+                          <Cell key={i} fill={entry.fill} />
+                        ))}
+                      </Pie>
+                      <RechartsTooltip contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: "8px" }} />
+                    </PieChart>
+                  </ResponsiveContainer>
+                </div>
+              </div>
+
+              {/* Bar Chart */}
+              <div>
+                <p className="text-sm font-heading font-semibold mb-3">
+                  Cost vs Sell per Tier
+                  <InfoTip text="Visual comparison of wholesale cost vs retail price per tier — taller green = more margin" />
+                </p>
+                <ChartContainer config={chartConfig} className="h-64">
+                  <BarChart data={barData}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.3} />
+                    <XAxis dataKey="tier" stroke="hsl(var(--muted-foreground))" fontSize={12} />
+                    <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} tickFormatter={(v) => `${v}¢`} />
+                    <ChartTooltip content={<ChartTooltipContent />} />
+                    <Bar dataKey="cost" fill={COLORS.apiCost} radius={[4, 4, 0, 0]} />
+                    <Bar dataKey="sell" fill={COLORS.revenue} radius={[4, 4, 0, 0]} />
+                  </BarChart>
+                </ChartContainer>
+              </div>
+            </div>
+
+            {/* Tier Table */}
+            <Dialog>
+              <DialogTrigger asChild>
+                <Button variant="outline" size="sm" className="mb-4">
+                  <ChevronRight className="h-4 w-4 mr-1" /> View Detailed Tier Breakdown
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="max-w-2xl glass">
+                <DialogHeader>
+                  <DialogTitle className="font-heading">Credit Pricing Tiers — Detailed</DialogTitle>
+                </DialogHeader>
+                <div className="overflow-x-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow className="border-border/30">
+                        <TableHead>Package</TableHead>
+                        <TableHead>Credits</TableHead>
+                        <TableHead>Cost/OC</TableHead>
+                        <TableHead>Sell/OC</TableHead>
+                        <TableHead>Margin</TableHead>
                       </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </div>
-            </DialogContent>
-          </Dialog>
-        </CardContent>
-      </Card>
-    </motion.div>
+                    </TableHeader>
+                    <TableBody>
+                      {tiers.map(t => (
+                        <TableRow key={t.price} className="border-border/20">
+                          <TableCell className="font-semibold">${t.price}</TableCell>
+                          <TableCell>{t.credits.toLocaleString()} OC</TableCell>
+                          <TableCell className="text-red-400">${t.adjustedCost.toFixed(3)}</TableCell>
+                          <TableCell className="text-green-400">${t.sellPerOC.toFixed(3)}</TableCell>
+                          <TableCell className={`font-bold ${t.margin > 40 ? "text-green-400" : t.margin > 20 ? "text-yellow-400" : "text-red-400"}`}>
+                            {t.margin.toFixed(1)}%
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+              </DialogContent>
+            </Dialog>
+          </CardContent>
+        </Card>
+      </motion.div>
+    </TooltipProvider>
   );
 }
 
@@ -246,136 +282,192 @@ export function ProjectionCharts() {
     margin: { label: "Gross Margin %", color: COLORS.margin },
   };
 
+  const tabTips: Record<string, string> = {
+    "5year": "Near-term execution phase",
+    "10year": "Full market maturity",
+    "combined": "Complete trajectory",
+  };
+
   return (
-    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}>
-      <Card className="glass border-border/30 mb-6">
-        <CardContent className="p-8">
-          <div className="flex items-center gap-2 mb-6">
-            <BarChart3 className="h-5 w-5 text-primary" />
-            <p className="text-xs uppercase tracking-widest text-muted-foreground">Financial Projections</p>
-          </div>
+    <TooltipProvider delayDuration={200}>
+      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}>
+        <Card className="glass border-border/30 mb-6">
+          <CardContent className="p-8">
+            <div className="flex items-center gap-2 mb-6">
+              <BarChart3 className="h-5 w-5 text-primary" />
+              <p className="text-xs uppercase tracking-widest text-muted-foreground">Financial Projections</p>
+              <InfoTip text="Growth projections based on current pricing and market assumptions" />
+            </div>
 
-          <Tabs defaultValue="combined" className="w-full">
-            <TabsList className="mb-6">
-              <TabsTrigger value="5year">5-Year</TabsTrigger>
-              <TabsTrigger value="10year">10-Year</TabsTrigger>
-              <TabsTrigger value="combined">Combined</TabsTrigger>
-            </TabsList>
+            <Tabs defaultValue="combined" className="w-full">
+              <TabsList className="mb-6">
+                {(["5year", "10year", "combined"] as const).map(tab => (
+                  <Tooltip key={tab}>
+                    <TooltipTrigger asChild>
+                      <TabsTrigger value={tab}>
+                        {tab === "5year" ? "5-Year" : tab === "10year" ? "10-Year" : "Combined"}
+                      </TabsTrigger>
+                    </TooltipTrigger>
+                    <TooltipContent className="text-xs">{tabTips[tab]}</TooltipContent>
+                  </Tooltip>
+                ))}
+              </TabsList>
 
-            {["5year", "10year", "combined"].map(tab => {
-              const data = tab === "5year" ? fiveYear : tenYear;
-              return (
-                <TabsContent key={tab} value={tab} className="space-y-8">
-                  {/* Revenue Area Chart */}
-                  <div>
-                    <p className="text-sm font-heading font-semibold mb-3">Revenue, API Costs & Gross Profit</p>
-                    <ChartContainer config={revenueConfig} className="h-72">
-                      <AreaChart data={data}>
-                        <defs>
-                          <linearGradient id="gradRevenue" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="5%" stopColor={COLORS.revenue} stopOpacity={0.3} />
-                            <stop offset="95%" stopColor={COLORS.revenue} stopOpacity={0} />
-                          </linearGradient>
-                          <linearGradient id="gradProfit" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="5%" stopColor={COLORS.grossProfit} stopOpacity={0.3} />
-                            <stop offset="95%" stopColor={COLORS.grossProfit} stopOpacity={0} />
-                          </linearGradient>
-                        </defs>
-                        <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.3} />
-                        <XAxis dataKey="year" stroke="hsl(var(--muted-foreground))" fontSize={12} />
-                        <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} tickFormatter={fmt} />
-                        <ChartTooltip content={<ChartTooltipContent />} />
-                        <Area type="monotone" dataKey="revenue" stroke={COLORS.revenue} fill="url(#gradRevenue)" strokeWidth={2} name="Revenue" />
-                        <Area type="monotone" dataKey="apiCosts" stroke={COLORS.apiCost} fill="transparent" strokeWidth={2} strokeDasharray="5 5" name="API Costs" />
-                        <Area type="monotone" dataKey="grossProfit" stroke={COLORS.grossProfit} fill="url(#gradProfit)" strokeWidth={2} name="Gross Profit" />
-                      </AreaChart>
-                    </ChartContainer>
-                  </div>
-
-                  {/* Users Bar Chart + Margin Line Chart */}
-                  <div className="grid md:grid-cols-2 gap-6">
+              {["5year", "10year", "combined"].map(tab => {
+                const data = tab === "5year" ? fiveYear : tenYear;
+                return (
+                  <TabsContent key={tab} value={tab} className="space-y-8">
+                    {/* Revenue Area Chart */}
                     <div>
-                      <p className="text-sm font-heading font-semibold mb-3">User Growth</p>
-                      <ChartContainer config={usersConfig} className="h-56">
-                        <BarChart data={data}>
+                      <p className="text-sm font-heading font-semibold mb-3">
+                        Revenue, API Costs & Gross Profit
+                        <InfoTip text="Shaded area between revenue and API costs represents gross profit" />
+                      </p>
+                      <ChartContainer config={revenueConfig} className="h-72">
+                        <AreaChart data={data}>
+                          <defs>
+                            <linearGradient id="gradRevenue" x1="0" y1="0" x2="0" y2="1">
+                              <stop offset="5%" stopColor={COLORS.revenue} stopOpacity={0.3} />
+                              <stop offset="95%" stopColor={COLORS.revenue} stopOpacity={0} />
+                            </linearGradient>
+                            <linearGradient id="gradProfit" x1="0" y1="0" x2="0" y2="1">
+                              <stop offset="5%" stopColor={COLORS.grossProfit} stopOpacity={0.3} />
+                              <stop offset="95%" stopColor={COLORS.grossProfit} stopOpacity={0} />
+                            </linearGradient>
+                          </defs>
                           <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.3} />
                           <XAxis dataKey="year" stroke="hsl(var(--muted-foreground))" fontSize={12} />
-                          <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} tickFormatter={fmtNum} />
+                          <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} tickFormatter={fmt} />
                           <ChartTooltip content={<ChartTooltipContent />} />
-                          <Bar dataKey="users" fill={COLORS.users} radius={[4, 4, 0, 0]} name="Users" />
-                        </BarChart>
+                          <Area type="monotone" dataKey="revenue" stroke={COLORS.revenue} fill="url(#gradRevenue)" strokeWidth={2} name="Revenue" />
+                          <Area type="monotone" dataKey="apiCosts" stroke={COLORS.apiCost} fill="transparent" strokeWidth={2} strokeDasharray="5 5" name="API Costs" />
+                          <Area type="monotone" dataKey="grossProfit" stroke={COLORS.grossProfit} fill="url(#gradProfit)" strokeWidth={2} name="Gross Profit" />
+                        </AreaChart>
                       </ChartContainer>
                     </div>
-                    <div>
-                      <p className="text-sm font-heading font-semibold mb-3">Gross Margin Trajectory</p>
-                      <ChartContainer config={marginConfig} className="h-56">
-                        <LineChart data={data}>
-                          <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.3} />
-                          <XAxis dataKey="year" stroke="hsl(var(--muted-foreground))" fontSize={12} />
-                          <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} domain={[30, 75]} tickFormatter={v => `${v}%`} />
-                          <ChartTooltip content={<ChartTooltipContent />} />
-                          <Line type="monotone" dataKey="margin" stroke={COLORS.margin} strokeWidth={3} dot={{ fill: COLORS.margin, r: 4 }} name="Gross Margin %" />
-                        </LineChart>
-                      </ChartContainer>
-                    </div>
-                  </div>
 
-                  {/* Reference Table */}
-                  <Dialog>
-                    <DialogTrigger asChild>
-                      <Button variant="outline" size="sm">
-                        <ChevronRight className="h-4 w-4 mr-1" /> View Data Table
-                      </Button>
-                    </DialogTrigger>
-                    <DialogContent className="max-w-4xl glass">
-                      <DialogHeader>
-                        <DialogTitle className="font-heading">{tab === "5year" ? "5-Year" : tab === "10year" ? "10-Year" : "Full"} Projection Data</DialogTitle>
-                      </DialogHeader>
-                      <div className="overflow-x-auto">
-                        <Table>
-                          <TableHeader>
-                            <TableRow className="border-border/30">
-                              <TableHead>Year</TableHead>
-                              <TableHead>Users</TableHead>
-                              <TableHead>Credits</TableHead>
-                              <TableHead>Revenue</TableHead>
-                              <TableHead>API Costs</TableHead>
-                              <TableHead>Gross Profit</TableHead>
-                              <TableHead>Margin</TableHead>
-                            </TableRow>
-                          </TableHeader>
-                          <TableBody>
-                            {data.map(d => (
-                              <TableRow key={d.year} className="border-border/20">
-                                <TableCell className="font-semibold">{d.year}</TableCell>
-                                <TableCell>{fmtNum(d.users)}</TableCell>
-                                <TableCell>{fmtNum(d.credits)} OC</TableCell>
-                                <TableCell className="text-green-400">{fmt(d.revenue)}</TableCell>
-                                <TableCell className="text-red-400">{fmt(d.apiCosts)}</TableCell>
-                                <TableCell className="text-blue-400">{fmt(d.grossProfit)}</TableCell>
-                                <TableCell className="font-bold gradient-text">{d.margin}%</TableCell>
-                              </TableRow>
-                            ))}
-                          </TableBody>
-                        </Table>
+                    {/* Users Bar Chart + Margin Line Chart */}
+                    <div className="grid md:grid-cols-2 gap-6">
+                      <div>
+                        <p className="text-sm font-heading font-semibold mb-3">
+                          User Growth
+                          <InfoTip text="Projected active users per year based on organic + paid acquisition" />
+                        </p>
+                        <ChartContainer config={usersConfig} className="h-56">
+                          <BarChart data={data}>
+                            <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.3} />
+                            <XAxis dataKey="year" stroke="hsl(var(--muted-foreground))" fontSize={12} />
+                            <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} tickFormatter={fmtNum} />
+                            <ChartTooltip content={<ChartTooltipContent />} />
+                            <Bar dataKey="users" fill={COLORS.users} radius={[4, 4, 0, 0]} name="Users" />
+                          </BarChart>
+                        </ChartContainer>
                       </div>
-                    </DialogContent>
-                  </Dialog>
-                </TabsContent>
-              );
-            })}
-          </Tabs>
+                      <div>
+                        <p className="text-sm font-heading font-semibold mb-3">
+                          Gross Margin Trajectory
+                          <InfoTip text="Margin improves over time through volume discounts and enterprise adoption" />
+                        </p>
+                        <ChartContainer config={marginConfig} className="h-56">
+                          <LineChart data={data}>
+                            <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.3} />
+                            <XAxis dataKey="year" stroke="hsl(var(--muted-foreground))" fontSize={12} />
+                            <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} domain={[30, 75]} tickFormatter={v => `${v}%`} />
+                            <ChartTooltip content={<ChartTooltipContent />} />
+                            <Line type="monotone" dataKey="margin" stroke={COLORS.margin} strokeWidth={3} dot={{ fill: COLORS.margin, r: 4 }} name="Gross Margin %" />
+                          </LineChart>
+                        </ChartContainer>
+                      </div>
+                    </div>
 
-          <p className="text-xs text-muted-foreground mt-4 italic">
-            Assumptions: Margin improvement driven by volume discounts, enterprise tier adoption, and reduced per-unit API costs at scale.
-          </p>
-        </CardContent>
-      </Card>
-    </motion.div>
+                    {/* Reference Table */}
+                    <Dialog>
+                      <DialogTrigger asChild>
+                        <Button variant="outline" size="sm">
+                          <ChevronRight className="h-4 w-4 mr-1" /> View Data Table
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent className="max-w-4xl glass">
+                        <DialogHeader>
+                          <DialogTitle className="font-heading">{tab === "5year" ? "5-Year" : tab === "10year" ? "10-Year" : "Full"} Projection Data</DialogTitle>
+                        </DialogHeader>
+                        <div className="overflow-x-auto">
+                          <Table>
+                            <TableHeader>
+                              <TableRow className="border-border/30">
+                                <TableHead>Year</TableHead>
+                                <TableHead>Users</TableHead>
+                                <TableHead>Credits</TableHead>
+                                <TableHead>Revenue</TableHead>
+                                <TableHead>API Costs</TableHead>
+                                <TableHead>Gross Profit</TableHead>
+                                <TableHead>Margin</TableHead>
+                              </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                              {data.map(d => (
+                                <TableRow key={d.year} className="border-border/20">
+                                  <TableCell className="font-semibold">{d.year}</TableCell>
+                                  <TableCell>{fmtNum(d.users)}</TableCell>
+                                  <TableCell>{fmtNum(d.credits)} OC</TableCell>
+                                  <TableCell className="text-green-400">{fmt(d.revenue)}</TableCell>
+                                  <TableCell className="text-red-400">{fmt(d.apiCosts)}</TableCell>
+                                  <TableCell className="text-blue-400">{fmt(d.grossProfit)}</TableCell>
+                                  <TableCell className="font-bold gradient-text">{d.margin}%</TableCell>
+                                </TableRow>
+                              ))}
+                            </TableBody>
+                          </Table>
+                        </div>
+                      </DialogContent>
+                    </Dialog>
+                  </TabsContent>
+                );
+              })}
+            </Tabs>
+
+            {/* Assumptions HoverCard */}
+            <HoverCard>
+              <HoverCardTrigger asChild>
+                <p className="text-xs text-muted-foreground mt-4 italic cursor-help underline decoration-dotted underline-offset-4">
+                  Assumptions: Margin improvement driven by volume discounts, enterprise tier adoption, and reduced per-unit API costs at scale.
+                </p>
+              </HoverCardTrigger>
+              <HoverCardContent className="w-80 text-xs space-y-2">
+                <p className="font-heading font-semibold text-sm">Key Assumptions</p>
+                <ul className="space-y-1 text-muted-foreground">
+                  <li>• <span className="text-foreground">User growth:</span> 10x Y1→Y2, tapering to 1.4x by Y9→Y10</li>
+                  <li>• <span className="text-foreground">API costs:</span> Volume discounts reduce per-unit cost ~8% annually</li>
+                  <li>• <span className="text-foreground">Revenue per user:</span> Increases with enterprise tier adoption</li>
+                  <li>• <span className="text-foreground">Churn:</span> Assumes 10-15% annual churn, offset by new acquisition</li>
+                  <li>• <span className="text-foreground">OpEx:</span> Scales sub-linearly due to automation & shared infra</li>
+                  <li>• <span className="text-foreground">Break-even:</span> Month 18-24 at base case growth</li>
+                </ul>
+              </HoverCardContent>
+            </HoverCard>
+          </CardContent>
+        </Card>
+      </motion.div>
+    </TooltipProvider>
   );
 }
 
 // ─── 3. Scenario Testing ──────────────────────────────────────────────────────
+
+const SCENARIO_TIPS: Record<string, string> = {
+  bull: "Accelerated adoption: 1.5x users, 1.3x revenue, +5% margin improvement",
+  base: "Current trajectory with no adjustments",
+  bear: "Adverse conditions: 0.5x users, 0.6x revenue, -8% margin compression",
+};
+
+const TABLE_HEADER_TIPS: Record<string, string> = {
+  "Y5 Revenue": "Total revenue at Year 5 driven by user count × avg purchase size",
+  "Y5 Users": "Active paying users at Year 5 after accounting for churn",
+  "Y5 Margin": "Gross margin percentage at Year 5 after API costs",
+  "Y10 Revenue": "Projected revenue at full market maturity",
+  "Y10 Users": "User base at scale — driven by market penetration rate",
+  "Y10 Margin": "Long-term margin after volume discounts and optimization",
+};
 
 export function ScenarioTesting() {
   const scenarios = useMemo(() => {
@@ -418,105 +510,132 @@ export function ScenarioTesting() {
   };
 
   return (
-    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
-      <Card className="glass border-border/30 mb-6">
-        <CardContent className="p-8">
-          <div className="flex items-center gap-2 mb-6">
-            <TrendingUp className="h-5 w-5 text-primary" />
-            <p className="text-xs uppercase tracking-widest text-muted-foreground">Scenario Analysis</p>
-          </div>
+    <TooltipProvider delayDuration={200}>
+      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
+        <Card className="glass border-border/30 mb-6">
+          <CardContent className="p-8">
+            <div className="flex items-center gap-2 mb-6">
+              <TrendingUp className="h-5 w-5 text-primary" />
+              <p className="text-xs uppercase tracking-widest text-muted-foreground">Scenario Analysis</p>
+              <InfoTip text="Compare outcomes under different market conditions" />
+            </div>
 
-          <Tabs defaultValue="comparison" className="w-full">
-            <TabsList className="mb-6">
-              <TabsTrigger value="comparison">Side-by-Side</TabsTrigger>
-              <TabsTrigger value="bull">Bull Case</TabsTrigger>
-              <TabsTrigger value="base">Base Case</TabsTrigger>
-              <TabsTrigger value="bear">Bear Case</TabsTrigger>
-            </TabsList>
+            <Tabs defaultValue="comparison" className="w-full">
+              <TabsList className="mb-6">
+                <TabsTrigger value="comparison">Side-by-Side</TabsTrigger>
+                {Object.entries(SCENARIO_MULTIPLIERS).map(([key, s]) => (
+                  <Tooltip key={key}>
+                    <TooltipTrigger asChild>
+                      <TabsTrigger value={key}>{s.label}</TabsTrigger>
+                    </TooltipTrigger>
+                    <TooltipContent className="text-xs max-w-[240px]">{SCENARIO_TIPS[key]}</TooltipContent>
+                  </Tooltip>
+                ))}
+              </TabsList>
 
-            <TabsContent value="comparison">
-              <div className="mb-6">
-                <p className="text-sm font-heading font-semibold mb-3">Revenue Comparison — Y5 & Y10</p>
-                <ChartContainer config={chartConfig} className="h-72">
-                  <BarChart data={comparisonData}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.3} />
-                    <XAxis dataKey="metric" stroke="hsl(var(--muted-foreground))" fontSize={12} />
-                    <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} tickFormatter={fmt} />
-                    <ChartTooltip content={<ChartTooltipContent />} />
-                    <Bar dataKey="bull" fill={SCENARIO_MULTIPLIERS.bull.color} radius={[4, 4, 0, 0]} name="Bull" />
-                    <Bar dataKey="base" fill={SCENARIO_MULTIPLIERS.base.color} radius={[4, 4, 0, 0]} name="Base" />
-                    <Bar dataKey="bear" fill={SCENARIO_MULTIPLIERS.bear.color} radius={[4, 4, 0, 0]} name="Bear" />
-                  </BarChart>
-                </ChartContainer>
-              </div>
-
-              {/* Summary Table */}
-              <Table>
-                <TableHeader>
-                  <TableRow className="border-border/30">
-                    <TableHead>Metric</TableHead>
-                    <TableHead className="text-center">🐂 Bull</TableHead>
-                    <TableHead className="text-center">📊 Base</TableHead>
-                    <TableHead className="text-center">🐻 Bear</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {[
-                    { label: "Y5 Revenue", values: scenarios.map(s => fmt(s.y5Revenue)) },
-                    { label: "Y5 Users", values: scenarios.map(s => fmtNum(s.y5Users)) },
-                    { label: "Y5 Margin", values: scenarios.map(s => `${s.y5Margin}%`) },
-                    { label: "Y10 Revenue", values: scenarios.map(s => fmt(s.y10Revenue)) },
-                    { label: "Y10 Users", values: scenarios.map(s => fmtNum(s.y10Users)) },
-                    { label: "Y10 Margin", values: scenarios.map(s => `${s.y10Margin}%`) },
-                  ].map(row => (
-                    <TableRow key={row.label} className="border-border/20">
-                      <TableCell className="text-muted-foreground">{row.label}</TableCell>
-                      {row.values.map((v, i) => (
-                        <TableCell key={i} className="text-center font-semibold">{v}</TableCell>
-                      ))}
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </TabsContent>
-
-            {Object.entries(SCENARIO_MULTIPLIERS).map(([key, s]) => {
-              const data = BASE_PROJECTIONS.map(p => ({
-                year: p.year,
-                revenue: p.revenue * s.revenue,
-                margin: p.margin + s.marginDelta,
-                users: p.users * s.users,
-              }));
-              return (
-                <TabsContent key={key} value={key}>
-                  <div className="mb-4">
-                    <p className="text-sm font-heading font-semibold mb-1">{s.label}</p>
-                    <p className="text-xs text-muted-foreground">
-                      Users: {s.users}x | Revenue: {s.revenue}x | Margin: {s.marginDelta >= 0 ? "+" : ""}{s.marginDelta}%
-                    </p>
-                  </div>
-                  <ChartContainer config={{ revenue: { label: "Revenue", color: s.color } }} className="h-64">
-                    <AreaChart data={data}>
+              <TabsContent value="comparison">
+                <div className="mb-6">
+                  <p className="text-sm font-heading font-semibold mb-3">
+                    Revenue Comparison — Y5 & Y10
+                    <InfoTip text="Side-by-side revenue outcomes help quantify upside vs downside risk" />
+                  </p>
+                  <ChartContainer config={chartConfig} className="h-72">
+                    <BarChart data={comparisonData}>
                       <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.3} />
-                      <XAxis dataKey="year" stroke="hsl(var(--muted-foreground))" fontSize={12} />
+                      <XAxis dataKey="metric" stroke="hsl(var(--muted-foreground))" fontSize={12} />
                       <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} tickFormatter={fmt} />
                       <ChartTooltip content={<ChartTooltipContent />} />
-                      <Area type="monotone" dataKey="revenue" stroke={s.color} fill={s.color} fillOpacity={0.15} strokeWidth={2} name="Revenue" />
-                    </AreaChart>
+                      <Bar dataKey="bull" fill={SCENARIO_MULTIPLIERS.bull.color} radius={[4, 4, 0, 0]} name="Bull" />
+                      <Bar dataKey="base" fill={SCENARIO_MULTIPLIERS.base.color} radius={[4, 4, 0, 0]} name="Base" />
+                      <Bar dataKey="bear" fill={SCENARIO_MULTIPLIERS.bear.color} radius={[4, 4, 0, 0]} name="Bear" />
+                    </BarChart>
                   </ChartContainer>
-                </TabsContent>
-              );
-            })}
-          </Tabs>
-        </CardContent>
-      </Card>
-    </motion.div>
+                </div>
+
+                {/* Summary Table */}
+                <Table>
+                  <TableHeader>
+                    <TableRow className="border-border/30">
+                      <TableHead>Metric</TableHead>
+                      <TableHead className="text-center">🐂 Bull</TableHead>
+                      <TableHead className="text-center">📊 Base</TableHead>
+                      <TableHead className="text-center">🐻 Bear</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {[
+                      { label: "Y5 Revenue", values: scenarios.map(s => fmt(s.y5Revenue)) },
+                      { label: "Y5 Users", values: scenarios.map(s => fmtNum(s.y5Users)) },
+                      { label: "Y5 Margin", values: scenarios.map(s => `${s.y5Margin}%`) },
+                      { label: "Y10 Revenue", values: scenarios.map(s => fmt(s.y10Revenue)) },
+                      { label: "Y10 Users", values: scenarios.map(s => fmtNum(s.y10Users)) },
+                      { label: "Y10 Margin", values: scenarios.map(s => `${s.y10Margin}%`) },
+                    ].map(row => (
+                      <TableRow key={row.label} className="border-border/20">
+                        <TableCell className="text-muted-foreground">
+                          {row.label}
+                          <InfoTip text={TABLE_HEADER_TIPS[row.label] || row.label} />
+                        </TableCell>
+                        {row.values.map((v, i) => (
+                          <TableCell key={i} className="text-center font-semibold">{v}</TableCell>
+                        ))}
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TabsContent>
+
+              {Object.entries(SCENARIO_MULTIPLIERS).map(([key, s]) => {
+                const data = BASE_PROJECTIONS.map(p => ({
+                  year: p.year,
+                  revenue: p.revenue * s.revenue,
+                  margin: p.margin + s.marginDelta,
+                  users: p.users * s.users,
+                }));
+                return (
+                  <TabsContent key={key} value={key}>
+                    <div className="mb-4">
+                      <p className="text-sm font-heading font-semibold mb-1">{s.label}</p>
+                      <p className="text-xs text-muted-foreground">
+                        Users: {s.users}x | Revenue: {s.revenue}x | Margin: {s.marginDelta >= 0 ? "+" : ""}{s.marginDelta}%
+                      </p>
+                    </div>
+                    <ChartContainer config={{ revenue: { label: "Revenue", color: s.color } }} className="h-64">
+                      <AreaChart data={data}>
+                        <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.3} />
+                        <XAxis dataKey="year" stroke="hsl(var(--muted-foreground))" fontSize={12} />
+                        <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} tickFormatter={fmt} />
+                        <ChartTooltip content={<ChartTooltipContent />} />
+                        <Area type="monotone" dataKey="revenue" stroke={s.color} fill={s.color} fillOpacity={0.15} strokeWidth={2} name="Revenue" />
+                      </AreaChart>
+                    </ChartContainer>
+                  </TabsContent>
+                );
+              })}
+            </Tabs>
+          </CardContent>
+        </Card>
+      </motion.div>
+    </TooltipProvider>
   );
 }
 
 // ─── 4. Stress Test ───────────────────────────────────────────────────────────
 
 const DEFAULTS = { apiIncrease: 0, churnRate: 10, avgPurchase: 75, growthRate: 1 };
+
+const SLIDER_TIPS: Record<string, string> = {
+  "API Cost Increase": "What if providers raise API prices? Models impact on margins.",
+  "User Churn Rate": "Annual percentage of users who stop purchasing. Industry avg: 10-15%.",
+  "Avg Credit Purchase": "Average transaction size. Higher = better unit economics.",
+  "Market Growth Rate": "Overall market expansion multiplier. 1x = organic only.",
+};
+
+const GAUGE_TIPS: Record<string, string> = {
+  "Y5 Revenue": "Projected Year 5 revenue under stress conditions. Green ≥ $30M.",
+  "Gross Margin": "Net margin after stressed API costs. Green ≥ 40%.",
+  "Break-even": "Months to profitability. Green ≤ 24 months.",
+};
 
 export function StressTest() {
   const [apiIncrease, setApiIncrease] = useState([DEFAULTS.apiIncrease]);
@@ -559,6 +678,12 @@ export function StressTest() {
     return "bg-red-500";
   };
 
+  const getZoneLabel = (value: number, green: number, yellow: number) => {
+    if (value >= green) return { text: "Healthy", cls: "text-green-400" };
+    if (value >= yellow) return { text: "Caution", cls: "text-yellow-400" };
+    return { text: "Critical", cls: "text-red-400" };
+  };
+
   const gauges = [
     {
       label: "Y5 Revenue",
@@ -566,6 +691,7 @@ export function StressTest() {
       display: fmt(results.adjustedRevenue),
       pct: Math.min(100, (results.adjustedRevenue / 60000000) * 100),
       color: getZoneColor(results.adjustedRevenue, 30000000, 15000000),
+      zone: getZoneLabel(results.adjustedRevenue, 30000000, 15000000),
     },
     {
       label: "Gross Margin",
@@ -573,6 +699,7 @@ export function StressTest() {
       display: `${results.adjustedMargin.toFixed(1)}%`,
       pct: Math.min(100, Math.max(0, results.adjustedMargin)),
       color: getZoneColor(results.adjustedMargin, 40, 20),
+      zone: getZoneLabel(results.adjustedMargin, 40, 20),
     },
     {
       label: "Break-even",
@@ -580,6 +707,11 @@ export function StressTest() {
       display: `${results.breakEvenMonths} mo`,
       pct: Math.min(100, (results.breakEvenMonths / 60) * 100),
       color: results.breakEvenMonths <= 24 ? "bg-green-500" : results.breakEvenMonths <= 42 ? "bg-yellow-500" : "bg-red-500",
+      zone: results.breakEvenMonths <= 24
+        ? { text: "Healthy", cls: "text-green-400" }
+        : results.breakEvenMonths <= 42
+        ? { text: "Caution", cls: "text-yellow-400" }
+        : { text: "Critical", cls: "text-red-400" },
     },
   ];
 
@@ -591,54 +723,64 @@ export function StressTest() {
   ];
 
   return (
-    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }}>
-      <Card className="glass border-border/30 mb-6">
-        <CardContent className="p-8">
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center gap-2">
-              <FlaskConical className="h-5 w-5 text-primary" />
-              <p className="text-xs uppercase tracking-widest text-muted-foreground">Stress Testing</p>
+    <TooltipProvider delayDuration={200}>
+      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }}>
+        <Card className="glass border-border/30 mb-6">
+          <CardContent className="p-8">
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center gap-2">
+                <FlaskConical className="h-5 w-5 text-primary" />
+                <p className="text-xs uppercase tracking-widest text-muted-foreground">Stress Testing</p>
+                <InfoTip text="Drag sliders to model worst-case scenarios and find breaking points" />
+              </div>
+              <Button variant="ghost" size="sm" onClick={reset}>
+                <RotateCcw className="h-4 w-4 mr-1" /> Reset
+              </Button>
             </div>
-            <Button variant="ghost" size="sm" onClick={reset}>
-              <RotateCcw className="h-4 w-4 mr-1" /> Reset
-            </Button>
-          </div>
 
-          {/* Sliders */}
-          <div className="grid md:grid-cols-2 gap-6 mb-8">
-            {sliders.map(s => (
-              <div key={s.label} className="p-4 rounded-lg bg-muted/20 border border-border/20">
-                <div className="flex items-center justify-between mb-3">
-                  <p className="text-sm font-heading font-semibold">{s.label}</p>
-                  <span className="text-sm font-mono font-bold text-primary">{s.display}</span>
+            {/* Sliders */}
+            <div className="grid md:grid-cols-2 gap-6 mb-8">
+              {sliders.map(s => (
+                <div key={s.label} className="p-4 rounded-lg bg-muted/20 border border-border/20">
+                  <div className="flex items-center justify-between mb-3">
+                    <p className="text-sm font-heading font-semibold">
+                      {s.label}
+                      <InfoTip text={SLIDER_TIPS[s.label]} />
+                    </p>
+                    <span className="text-sm font-mono font-bold text-primary">{s.display}</span>
+                  </div>
+                  <Slider value={s.value} onValueChange={s.set} min={s.min} max={s.max} step={s.step} />
                 </div>
-                <Slider value={s.value} onValueChange={s.set} min={s.min} max={s.max} step={s.step} />
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
 
-          {/* Gauge Results */}
-          <div className="grid grid-cols-3 gap-6">
-            {gauges.map(g => (
-              <div key={g.label} className="text-center">
-                <p className="text-xs text-muted-foreground mb-2">{g.label}</p>
-                <p className="text-2xl font-heading font-bold mb-3">{g.display}</p>
-                <div className="w-full h-3 rounded-full bg-muted/30 overflow-hidden">
-                  <div
-                    className={`h-full rounded-full transition-all duration-500 ${g.color}`}
-                    style={{ width: `${g.pct}%` }}
-                  />
+            {/* Gauge Results */}
+            <div className="grid grid-cols-3 gap-6">
+              {gauges.map(g => (
+                <div key={g.label} className="text-center">
+                  <p className="text-xs text-muted-foreground mb-2">
+                    {g.label}
+                    <InfoTip text={GAUGE_TIPS[g.label]} />
+                  </p>
+                  <p className="text-2xl font-heading font-bold mb-3">{g.display}</p>
+                  <div className="w-full h-3 rounded-full bg-muted/30 overflow-hidden">
+                    <div
+                      className={`h-full rounded-full transition-all duration-500 ${g.color}`}
+                      style={{ width: `${g.pct}%` }}
+                    />
+                  </div>
+                  <div className="flex justify-between text-[10px] mt-1">
+                    <span className="text-red-400">Critical</span>
+                    <span className="text-yellow-400">Caution</span>
+                    <span className="text-green-400">Healthy</span>
+                  </div>
+                  <p className={`text-xs font-semibold mt-1 ${g.zone.cls}`}>{g.zone.text}</p>
                 </div>
-                <div className="flex justify-between text-[10px] text-muted-foreground mt-1">
-                  <span>🔴</span>
-                  <span>🟡</span>
-                  <span>🟢</span>
-                </div>
-              </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
-    </motion.div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      </motion.div>
+    </TooltipProvider>
   );
 }
