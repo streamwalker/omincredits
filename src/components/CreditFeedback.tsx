@@ -2,7 +2,6 @@ import { motion, AnimatePresence } from "framer-motion";
 
 interface CreditFeedbackProps {
   amount: number | null;
-  key?: string;
 }
 
 const CreditFeedback = ({ amount }: CreditFeedbackProps) => {
