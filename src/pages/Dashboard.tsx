@@ -2,7 +2,7 @@ import { useState, useCallback } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { MessageSquare, Image, Video, Code, LogOut, CreditCard, Zap } from "lucide-react";
+import { MessageSquare, Image, Video, Code, LogOut, CreditCard, Zap, Handshake } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import CreditFeedback from "@/components/CreditFeedback";
 
@@ -106,6 +106,11 @@ const Dashboard = () => {
             STREAMWALKERS
           </Link>
           <div className="flex items-center gap-4">
+            <Link to="/partnerships">
+              <Button variant="ghost" size="sm" className="gap-1.5">
+                <Handshake className="w-4 h-4" /> Partnerships
+              </Button>
+            </Link>
             <div className="flex items-center gap-2 glass rounded-full px-4 py-1.5">
               <Zap className="w-4 h-4 text-primary" />
               <span className="font-heading font-bold text-sm">{credits} OC</span>
