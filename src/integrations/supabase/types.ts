@@ -14,7 +14,102 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      gift_cards: {
+        Row: {
+          amount_usd: number
+          code: string
+          created_at: string
+          credits: number
+          id: string
+          message: string | null
+          recipient_email: string
+          redeemed: boolean
+          redeemed_by: string | null
+          sender_email: string
+          sender_name: string
+        }
+        Insert: {
+          amount_usd: number
+          code: string
+          created_at?: string
+          credits: number
+          id?: string
+          message?: string | null
+          recipient_email: string
+          redeemed?: boolean
+          redeemed_by?: string | null
+          sender_email: string
+          sender_name: string
+        }
+        Update: {
+          amount_usd?: number
+          code?: string
+          created_at?: string
+          credits?: number
+          id?: string
+          message?: string | null
+          recipient_email?: string
+          redeemed?: boolean
+          redeemed_by?: string | null
+          sender_email?: string
+          sender_name?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          credit_balance: number
+          display_name: string | null
+          id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          credit_balance?: number
+          display_name?: string | null
+          id?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          credit_balance?: number
+          display_name?: string | null
+          id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      transactions: {
+        Row: {
+          created_at: string
+          credits_change: number
+          description: string | null
+          id: string
+          type: Database["public"]["Enums"]["transaction_type"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          credits_change: number
+          description?: string | null
+          id?: string
+          type: Database["public"]["Enums"]["transaction_type"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          credits_change?: number
+          description?: string | null
+          id?: string
+          type?: Database["public"]["Enums"]["transaction_type"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -23,7 +118,7 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      transaction_type: "purchase" | "redemption" | "usage"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +245,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      transaction_type: ["purchase", "redemption", "usage"],
+    },
   },
 } as const
