@@ -15,7 +15,7 @@ const CreditFeedback = ({ amount }: CreditFeedbackProps) => {
           transition={{ duration: 1.5, ease: "easeOut" }}
           className="fixed top-20 right-8 text-2xl font-heading font-bold text-accent z-50"
         >
-          -{amount} CC
+          -{amount} OC
         </motion.div>
       )}
     </AnimatePresence>

@@ -108,7 +108,7 @@ const Dashboard = () => {
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-2 glass rounded-full px-4 py-1.5">
               <Zap className="w-4 h-4 text-primary" />
-              <span className="font-heading font-bold text-sm">{credits} CC</span>
+              <span className="font-heading font-bold text-sm">{credits} OC</span>
             </div>
             <Button variant="ghost" size="icon" onClick={handleSignOut}>
               <LogOut className="w-4 h-4" />
@@ -126,7 +126,7 @@ const Dashboard = () => {
         >
           <p className="text-sm text-muted-foreground mb-1">Credits Remaining</p>
           <p className="text-6xl font-heading font-bold gradient-text">{credits}</p>
-          <p className="text-sm text-muted-foreground mt-1">Compute Credits</p>
+          <p className="text-sm text-muted-foreground mt-1">OmniCredits™</p>
         </motion.div>
 
         {/* Active Action View: Chat */}
@@ -167,7 +167,7 @@ const Dashboard = () => {
                     value={chatInput}
                     onChange={(e) => setChatInput(e.target.value)}
                     onKeyDown={(e) => e.key === "Enter" && handleChatSend()}
-                    placeholder="Type a message... (1 CC per prompt)"
+                    placeholder="Type a message... (1 OC per prompt)"
                     className="flex-1 bg-muted rounded-lg px-4 py-2 text-sm border border-border focus:outline-none focus:ring-1 focus:ring-primary"
                   />
                   <Button
@@ -214,7 +214,7 @@ const Dashboard = () => {
                 </div>
                 <h3 className="font-heading font-semibold mb-1">{action.title}</h3>
                 <p className="text-sm text-muted-foreground mb-3">{action.desc}</p>
-                <span className="text-xs font-heading text-primary">{action.cost} CC per use</span>
+                <span className="text-xs font-heading text-primary">{action.cost} OC per use</span>
               </motion.button>
             ))}
           </div>
@@ -227,11 +227,11 @@ const Dashboard = () => {
             <div className="space-y-3">
               <div className="flex justify-between">
                 <span className="text-sm">Credits Used</span>
-                <span className="font-heading font-bold">{usedToday} CC</span>
+                <span className="font-heading font-bold">{usedToday} OC</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-sm">Remaining</span>
-                <span className="font-heading font-bold gradient-text">{credits} CC</span>
+                <span className="font-heading font-bold gradient-text">{credits} OC</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-sm">Est. Chat Prompts Left</span>

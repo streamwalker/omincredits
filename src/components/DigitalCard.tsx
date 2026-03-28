@@ -29,9 +29,9 @@ const DigitalCard = ({ credits, recipientEmail, message }: DigitalCardProps) => 
           {/* Center */}
           <div className="text-center space-y-1">
             <p className="text-3xl sm:text-4xl font-heading font-bold gradient-text">
-              {credits} CC
+              {credits} OC
             </p>
-            <p className="text-xs text-muted-foreground">Compute Credits</p>
+            <p className="text-xs text-muted-foreground">OmniCredits™</p>
           </div>
 
           {/* Bottom */}
