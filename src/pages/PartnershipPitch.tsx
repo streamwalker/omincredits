@@ -2,8 +2,8 @@ import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { ArrowLeft, DollarSign, Users, TrendingUp, Wallet, Shield, Target, Lightbulb, AlertTriangle, BarChart3, Calculator } from "lucide-react";
+import { ArrowLeft, DollarSign, Users, TrendingUp, Wallet, Shield, Target, Lightbulb, AlertTriangle } from "lucide-react";
+import { UnitEconomicsPanel, ProjectionCharts, ScenarioTesting, StressTest } from "@/components/FinancialModels";
 import { PartnershipNav } from "./Partnerships";
 
 const SLIDES = [
