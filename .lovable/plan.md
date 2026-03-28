@@ -1,55 +1,56 @@
 
 
-# Add SWOT, Financial Models & Projections to Pitch Deck
+# Interactive Financial Models — Pitch Deck Upgrade
 
-Add three new sections to `src/pages/PartnershipPitch.tsx` between the existing sections, keeping the same glassmorphism card style.
+Replace the static financial tables with an interactive financial modeling system. Each financial section becomes clickable, opening detailed views with Recharts charts, scenario sliders, and stress tests.
 
-## New Sections
+## Architecture
 
-### 1. SWOT Analysis (after Solution, before Traction)
-A 2x2 grid of colored cards:
-- **Strengths**: First-mover in prepaid AI credits, simplified UX for non-technical users, multi-provider routing, prepaid cash flow model
-- **Weaknesses**: No established brand yet, dependent on third-party APIs, unproven at scale, limited traction data
-- **Opportunities**: Untapped gift/family market, enterprise bulk credit purchases, education sector, international expansion
-- **Threats**: Providers launching own gift cards, API pricing changes eroding margins, competitors copying the model, regulatory changes
+Create a new component file `src/components/FinancialModels.tsx` containing all interactive financial sub-components. The pitch deck page will import and render them in place of the current static tables.
 
-Each quadrant gets a distinct accent color (green/yellow/blue/red).
+## Components to Build (all in `FinancialModels.tsx`)
 
-### 2. Financial Model (after Traction, before Partnership Angles)
-A card showing the unit economics table:
-- **Credit pricing tiers**: $25/100OC, $50/250OC, $100/600OC, $200/1400OC
-- **Blended margin**: Show average cost-per-OC vs sell price, with ~40-60% gross margin assumption
-- **Revenue breakdown**: Credit sales revenue, API cost (wholesale), gross profit, operating expenses, net margin
-- Uses a simple styled table with the existing design system
+### 1. `UnitEconomicsPanel` (replaces static pricing table)
+- Clickable card that expands into a Dialog/full section
+- **Pie chart**: Revenue breakdown (API cost vs gross profit vs opex vs net margin)
+- **Bar chart**: Cost/OC vs Sell/OC per tier, showing margin visually
+- **Interactive slider**: "Average API cost multiplier" (0.5x–2x) — recalculates all margins live
 
-### 3. Five-Year & Ten-Year Financial Projections (after Financial Model)
-Two projection tables side by side (or stacked on mobile):
+### 2. `ProjectionCharts` (replaces 5-year and 10-year tables)
+- **Area/line chart**: Revenue, API Costs, Gross Profit over 10 years (Y1–Y10)
+- **Bar chart**: Users growth Y1–Y10
+- **Line chart**: Gross Margin % trajectory Y1–Y10
+- Tables still shown below charts as reference
+- **Tabs**: "5-Year View" / "10-Year View" / "Combined"
 
-**Five-Year Projection** (Year 1-5):
-| Metric | Y1 | Y2 | Y3 | Y4 | Y5 |
-|--------|-----|-----|------|------|------|
-| Users | 1K | 10K | 50K | 200K | 500K |
-| Credits Sold | 100K OC | 1.5M OC | 10M OC | 50M OC | 150M OC |
-| Revenue | $25K | $375K | $2.5M | $12.5M | $37.5M |
-| API Costs | $15K | $200K | $1.2M | $5.5M | $15M |
-| Gross Profit | $10K | $175K | $1.3M | $7M | $22.5M |
-| Gross Margin | 40% | 47% | 52% | 56% | 60% |
+### 3. `ScenarioTesting` (new section)
+- Three preset scenarios via Tabs: **Bull Case**, **Base Case**, **Bear Case**
+- Each scenario has different growth multipliers applied to the base data:
+  - Bull: 1.5x users, 1.3x revenue, margins +5%
+  - Base: current numbers (1x)
+  - Bear: 0.5x users, 0.6x revenue, margins -8%
+- Side-by-side bar charts comparing Y5 and Y10 outcomes across scenarios
+- Table summary below
 
-**Ten-Year Projection** (Year 6-10):
-| Metric | Y6 | Y7 | Y8 | Y9 | Y10 |
-|--------|------|------|------|-------|-------|
-| Users | 1M | 2M | 4M | 7M | 10M |
-| Credits Sold | 400M OC | 1B OC | 2.5B OC | 5B OC | 10B OC |
-| Revenue | $100M | $250M | $625M | $1.25B | $2.5B |
-| Gross Margin | 62% | 64% | 66% | 68% | 70% |
+### 4. `StressTest` (new section)
+- Interactive sliders for key variables:
+  - API cost increase (0%–100%)
+  - User churn rate (5%–40%)
+  - Average credit purchase size ($25–$200)
+  - Market growth rate (0.5x–3x)
+- Results update live: shows impact on Y5 Revenue, Gross Margin, and Break-even timeline
+- **Gauge/bar visuals** showing green/yellow/red zones for each output metric
+- "Reset to defaults" button
 
-Assumptions note at bottom: margin improvement from volume discounts, enterprise tiers, and reduced per-unit API costs at scale.
+## Changes to `PartnershipPitch.tsx`
+- Remove the inline static Financial Model, Five-Year, and Ten-Year table sections (lines 215–346)
+- Replace with 4 imported components: `<UnitEconomicsPanel />`, `<ProjectionCharts />`, `<ScenarioTesting />`, `<StressTest />`
+- Keep all other sections (SWOT, Traction, Angles, Offers, The Ask) unchanged
 
 ## Technical Details
-- All changes in `src/pages/PartnershipPitch.tsx` only
-- Add `Shield, Target, Lightbulb, AlertTriangle, BarChart3, Calculator` to lucide imports
-- Add `Table, TableBody, TableCell, TableHead, TableHeader, TableRow` imports from ui/table
-- Each new section is a `motion.div` + `Card` with staggered animation delays (adjusted for new count)
-- SWOT grid uses `grid-cols-2` with colored left borders per quadrant
-- Projection tables use the existing `Table` UI components with the dark theme styling
+- Uses Recharts (already installed): `AreaChart`, `BarChart`, `PieChart`, `LineChart`, `ResponsiveContainer`
+- Uses existing UI: `ChartContainer`/`ChartTooltip` from `ui/chart`, `Tabs`/`TabsList`/`TabsTrigger`/`TabsContent` from `ui/tabs`, `Slider` from `ui/slider`, `Dialog` from `ui/dialog`
+- All data is computed from the existing constants with multipliers applied via React state
+- Dark theme styling with glassmorphism cards, gradient accents — matches existing design
+- Two new files: `src/components/FinancialModels.tsx` (all 4 components) — keeps pitch page clean
 
