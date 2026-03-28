@@ -2,7 +2,8 @@ import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { ArrowLeft, DollarSign, Users, TrendingUp, Wallet } from "lucide-react";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { ArrowLeft, DollarSign, Users, TrendingUp, Wallet, Shield, Target, Lightbulb, AlertTriangle, BarChart3, Calculator } from "lucide-react";
 import { PartnershipNav } from "./Partnerships";
 
 const SLIDES = [
@@ -20,12 +21,104 @@ const SLIDES = [
   },
 ];
 
+const SWOT = [
+  {
+    label: "Strengths",
+    icon: Shield,
+    color: "border-l-green-500",
+    bgColor: "bg-green-500/10",
+    textColor: "text-green-400",
+    items: [
+      "First-mover in prepaid AI credits",
+      "Simplified UX for non-technical users",
+      "Multi-provider routing architecture",
+      "Prepaid cash flow model",
+    ],
+  },
+  {
+    label: "Weaknesses",
+    icon: AlertTriangle,
+    color: "border-l-yellow-500",
+    bgColor: "bg-yellow-500/10",
+    textColor: "text-yellow-400",
+    items: [
+      "No established brand yet",
+      "Dependent on third-party APIs",
+      "Unproven at scale",
+      "Limited traction data",
+    ],
+  },
+  {
+    label: "Opportunities",
+    icon: Lightbulb,
+    color: "border-l-blue-500",
+    bgColor: "bg-blue-500/10",
+    textColor: "text-blue-400",
+    items: [
+      "Untapped gift & family market",
+      "Enterprise bulk credit purchases",
+      "Education sector adoption",
+      "International expansion",
+    ],
+  },
+  {
+    label: "Threats",
+    icon: Target,
+    color: "border-l-red-500",
+    bgColor: "bg-red-500/10",
+    textColor: "text-red-400",
+    items: [
+      "Providers launching own gift cards",
+      "API pricing changes eroding margins",
+      "Competitors copying the model",
+      "Regulatory changes",
+    ],
+  },
+];
+
 const TRACTION = [
   { label: "Credits Sold", value: "[X]", sub: "OmniCredits™" },
   { label: "Users Onboarded", value: "[X]", sub: "unique users" },
   { label: "Usage Volume", value: "[X]", sub: "API calls routed" },
   { label: "Revenue", value: "$[X]", sub: "prepaid credits" },
 ];
+
+const PRICING_TIERS = [
+  { price: "$25", credits: "100 OC", costPerOC: "$0.15", sellPerOC: "$0.25", margin: "40%" },
+  { price: "$50", credits: "250 OC", costPerOC: "$0.12", sellPerOC: "$0.20", margin: "40%" },
+  { price: "$100", credits: "600 OC", costPerOC: "$0.09", sellPerOC: "$0.167", margin: "46%" },
+  { price: "$200", credits: "1,400 OC", costPerOC: "$0.07", sellPerOC: "$0.143", margin: "51%" },
+];
+
+const REVENUE_BREAKDOWN = [
+  { metric: "Credit Sales Revenue", value: "100%" },
+  { metric: "API Cost (Wholesale)", value: "~45%" },
+  { metric: "Gross Profit", value: "~55%" },
+  { metric: "Operating Expenses", value: "~25%" },
+  { metric: "Net Margin", value: "~30%" },
+];
+
+const FIVE_YEAR = {
+  metrics: ["Users", "Credits Sold", "Revenue", "API Costs", "Gross Profit", "Gross Margin"],
+  years: [
+    ["1K", "100K OC", "$25K", "$15K", "$10K", "40%"],
+    ["10K", "1.5M OC", "$375K", "$200K", "$175K", "47%"],
+    ["50K", "10M OC", "$2.5M", "$1.2M", "$1.3M", "52%"],
+    ["200K", "50M OC", "$12.5M", "$5.5M", "$7M", "56%"],
+    ["500K", "150M OC", "$37.5M", "$15M", "$22.5M", "60%"],
+  ],
+};
+
+const TEN_YEAR = {
+  metrics: ["Users", "Credits Sold", "Revenue", "Gross Margin"],
+  years: [
+    ["1M", "400M OC", "$100M", "62%"],
+    ["2M", "1B OC", "$250M", "64%"],
+    ["4M", "2.5B OC", "$625M", "66%"],
+    ["7M", "5B OC", "$1.25B", "68%"],
+    ["10M", "10B OC", "$2.5B", "70%"],
+  ],
+};
 
 const ANGLES = [
   { icon: DollarSign, title: "Incremental Revenue", desc: "We bring prepaid users who wouldn't subscribe directly. New revenue you're not capturing today." },
@@ -40,8 +133,12 @@ const OFFERS = [
   { label: "Co-branded Credits", desc: "'Use OmniCredits™ with [Provider]' — after traction is proven." },
 ];
 
+let delay = 0;
+const nextDelay = () => { delay += 0.08; return delay; };
+
 const PartnershipPitch = () => {
   const navigate = useNavigate();
+  delay = 0;
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -55,12 +152,12 @@ const PartnershipPitch = () => {
         </div>
       </nav>
 
-      <div className="max-w-4xl mx-auto px-4 py-8">
+      <div className="max-w-5xl mx-auto px-4 py-8">
         <PartnershipNav />
 
         {/* Slides */}
-        {SLIDES.map((s, i) => (
-          <motion.div key={s.title} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.1 }}>
+        {SLIDES.map((s) => (
+          <motion.div key={s.title} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: nextDelay() }}>
             <Card className="glass border-border/30 mb-6">
               <CardContent className="p-8">
                 <p className="text-xs uppercase tracking-widest text-muted-foreground mb-2">{s.title}</p>
@@ -70,8 +167,35 @@ const PartnershipPitch = () => {
           </motion.div>
         ))}
 
+        {/* SWOT Analysis */}
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: nextDelay() }}>
+          <Card className="glass border-border/30 mb-6">
+            <CardContent className="p-8">
+              <p className="text-xs uppercase tracking-widest text-muted-foreground mb-4">SWOT Analysis</p>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {SWOT.map((q) => (
+                  <div key={q.label} className={`rounded-lg border-l-4 ${q.color} ${q.bgColor} p-5`}>
+                    <div className="flex items-center gap-2 mb-3">
+                      <q.icon className={`h-5 w-5 ${q.textColor}`} />
+                      <p className={`font-heading font-bold text-sm ${q.textColor}`}>{q.label}</p>
+                    </div>
+                    <ul className="space-y-1.5">
+                      {q.items.map((item) => (
+                        <li key={item} className="text-xs text-foreground/80 flex items-start gap-2">
+                          <span className={`mt-1.5 h-1.5 w-1.5 rounded-full ${q.textColor} bg-current shrink-0`} />
+                          {item}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
+
         {/* Traction */}
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: nextDelay() }}>
           <Card className="glass border-border/30 mb-6">
             <CardContent className="p-8">
               <p className="text-xs uppercase tracking-widest text-muted-foreground mb-4">Traction</p>
@@ -88,8 +212,141 @@ const PartnershipPitch = () => {
           </Card>
         </motion.div>
 
+        {/* Financial Model */}
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: nextDelay() }}>
+          <Card className="glass border-border/30 mb-6">
+            <CardContent className="p-8">
+              <div className="flex items-center gap-2 mb-4">
+                <Calculator className="h-5 w-5 text-primary" />
+                <p className="text-xs uppercase tracking-widest text-muted-foreground">Financial Model — Unit Economics</p>
+              </div>
+
+              <p className="text-sm font-heading font-semibold mb-3">Credit Pricing Tiers</p>
+              <div className="overflow-x-auto mb-6">
+                <Table>
+                  <TableHeader>
+                    <TableRow className="border-border/30">
+                      <TableHead className="text-muted-foreground">Package</TableHead>
+                      <TableHead className="text-muted-foreground">Credits</TableHead>
+                      <TableHead className="text-muted-foreground">Cost/OC</TableHead>
+                      <TableHead className="text-muted-foreground">Sell/OC</TableHead>
+                      <TableHead className="text-muted-foreground">Margin</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {PRICING_TIERS.map((t) => (
+                      <TableRow key={t.price} className="border-border/20">
+                        <TableCell className="font-semibold">{t.price}</TableCell>
+                        <TableCell>{t.credits}</TableCell>
+                        <TableCell className="text-red-400">{t.costPerOC}</TableCell>
+                        <TableCell className="text-green-400">{t.sellPerOC}</TableCell>
+                        <TableCell className="font-bold gradient-text">{t.margin}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+
+              <p className="text-sm font-heading font-semibold mb-3">Revenue Breakdown (At Scale)</p>
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableBody>
+                    {REVENUE_BREAKDOWN.map((r) => (
+                      <TableRow key={r.metric} className="border-border/20">
+                        <TableCell className="text-muted-foreground">{r.metric}</TableCell>
+                        <TableCell className="text-right font-semibold">{r.value}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
+
+        {/* Five-Year Projection */}
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: nextDelay() }}>
+          <Card className="glass border-border/30 mb-6">
+            <CardContent className="p-8">
+              <div className="flex items-center gap-2 mb-4">
+                <BarChart3 className="h-5 w-5 text-primary" />
+                <p className="text-xs uppercase tracking-widest text-muted-foreground">Five-Year Financial Projection</p>
+              </div>
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow className="border-border/30">
+                      <TableHead className="text-muted-foreground">Metric</TableHead>
+                      {["Y1", "Y2", "Y3", "Y4", "Y5"].map((y) => (
+                        <TableHead key={y} className="text-muted-foreground text-center">{y}</TableHead>
+                      ))}
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {FIVE_YEAR.metrics.map((metric, mi) => (
+                      <TableRow key={metric} className="border-border/20">
+                        <TableCell className="text-muted-foreground text-sm whitespace-nowrap">{metric}</TableCell>
+                        {FIVE_YEAR.years.map((yr, yi) => (
+                          <TableCell
+                            key={yi}
+                            className={`text-center text-sm ${metric === "Gross Margin" ? "font-bold gradient-text" : ""}`}
+                          >
+                            {yr[mi]}
+                          </TableCell>
+                        ))}
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
+
+        {/* Ten-Year Projection */}
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: nextDelay() }}>
+          <Card className="glass border-border/30 mb-6">
+            <CardContent className="p-8">
+              <div className="flex items-center gap-2 mb-4">
+                <TrendingUp className="h-5 w-5 text-primary" />
+                <p className="text-xs uppercase tracking-widest text-muted-foreground">Ten-Year Financial Projection</p>
+              </div>
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow className="border-border/30">
+                      <TableHead className="text-muted-foreground">Metric</TableHead>
+                      {["Y6", "Y7", "Y8", "Y9", "Y10"].map((y) => (
+                        <TableHead key={y} className="text-muted-foreground text-center">{y}</TableHead>
+                      ))}
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {TEN_YEAR.metrics.map((metric, mi) => (
+                      <TableRow key={metric} className="border-border/20">
+                        <TableCell className="text-muted-foreground text-sm whitespace-nowrap">{metric}</TableCell>
+                        {TEN_YEAR.years.map((yr, yi) => (
+                          <TableCell
+                            key={yi}
+                            className={`text-center text-sm ${metric === "Gross Margin" ? "font-bold gradient-text" : ""}`}
+                          >
+                            {yr[mi]}
+                          </TableCell>
+                        ))}
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+              <p className="text-xs text-muted-foreground mt-4 italic">
+                Assumptions: Margin improvement driven by volume discounts, enterprise tier adoption, and reduced per-unit API costs at scale.
+              </p>
+            </CardContent>
+          </Card>
+        </motion.div>
+
         {/* Partnership Angles */}
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}>
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: nextDelay() }}>
           <Card className="glass border-border/30 mb-6">
             <CardContent className="p-8">
               <p className="text-xs uppercase tracking-widest text-muted-foreground mb-4">Partnership Angles</p>
@@ -111,7 +368,7 @@ const PartnershipPitch = () => {
         </motion.div>
 
         {/* What We Offer */}
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }}>
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: nextDelay() }}>
           <Card className="glass border-border/30 mb-6">
             <CardContent className="p-8">
               <p className="text-xs uppercase tracking-widest text-muted-foreground mb-4">What We Offer</p>
@@ -131,7 +388,7 @@ const PartnershipPitch = () => {
         </motion.div>
 
         {/* The Ask */}
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6 }}>
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: nextDelay() }}>
           <Card className="glass border-border/30 glow-border mb-12">
             <CardContent className="p-8 text-center">
               <p className="text-xs uppercase tracking-widest text-muted-foreground mb-2">The Ask</p>
