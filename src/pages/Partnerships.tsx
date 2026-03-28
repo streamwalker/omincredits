@@ -62,8 +62,8 @@ const WEEKLY_PLAN = [
 ];
 
 const statusIcon = (s: string) => {
-  if (s === "in-progress") return <Clock className="h-4 w-4 text-yellow-400" />;
-  if (s === "contacted" || s === "partnered") return <CheckCircle2 className="h-4 w-4 text-green-400" />;
+  if (s === "in-progress") return <Clock className="h-4 w-4 text-accent-foreground" />;
+  if (s === "contacted" || s === "partnered") return <CheckCircle2 className="h-4 w-4 text-primary" />;
   return <Circle className="h-4 w-4 text-muted-foreground" />;
 };
 
