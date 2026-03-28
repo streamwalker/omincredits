@@ -70,7 +70,7 @@ const Purchase = () => {
                     className="glass glow-border rounded-xl p-6 text-center hover:bg-card/80 transition-all"
                   >
                     <p className="text-3xl font-heading font-bold">${plan.price}</p>
-                    <p className="text-sm text-muted-foreground mt-1">{plan.credits} Credits</p>
+                    <p className="text-sm text-muted-foreground mt-1">{plan.credits} OmniCredits</p>
                   </button>
                 ))}
               </div>
@@ -81,7 +81,7 @@ const Purchase = () => {
           {step === "details" && selectedPlan && (
             <motion.div key="details" initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }}>
               <h1 className="text-3xl font-heading font-bold mb-2">
-                Send <span className="gradient-text">{selectedPlan.credits} Credits</span>
+                Send <span className="gradient-text">{selectedPlan.credits} OmniCredits</span>
               </h1>
               <p className="text-muted-foreground mb-8">${selectedPlan.price} gift card</p>
 

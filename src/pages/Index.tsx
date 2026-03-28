@@ -86,7 +86,7 @@ const Index = () => {
       <section className="py-16 px-4">
         <div className="container mx-auto">
           <h2 className="text-2xl font-heading font-bold text-center mb-10">
-            Choose Your <span className="gradient-text">Credits</span>
+            Choose Your <span className="gradient-text">OmniCredits™</span>
           </h2>
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 max-w-4xl mx-auto">
             {PLANS.map((plan, i) => (
@@ -101,7 +101,7 @@ const Index = () => {
                     <p className="text-3xl font-heading font-bold text-foreground group-hover:gradient-text transition-all">
                       ${plan.price}
                     </p>
-                    <p className="text-sm text-muted-foreground mt-1">{plan.credits} Credits</p>
+                    <p className="text-sm text-muted-foreground mt-1">{plan.credits} OmniCredits</p>
                     {plan.price >= 100 && (
                       <span className="inline-block mt-2 text-[10px] font-semibold px-2 py-0.5 rounded-full bg-primary/10 text-primary">
                         Best Value

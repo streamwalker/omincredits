@@ -88,9 +88,9 @@ const Redeem = () => {
 
                 <h1 className="text-3xl font-heading font-bold mb-2">You've Unlocked</h1>
                 <p className="text-5xl font-heading font-bold gradient-text mb-2">
-                  {unlockedCredits} CC
+                  {unlockedCredits} OC
                 </p>
-                <p className="text-muted-foreground mb-8">Compute Credits</p>
+                <p className="text-muted-foreground mb-8">OmniCredits™</p>
 
                 <Button
                   className="w-full bg-primary text-primary-foreground hover:bg-primary/90 font-heading font-semibold text-lg py-6"
