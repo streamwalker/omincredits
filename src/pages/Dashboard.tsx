@@ -2,7 +2,7 @@ import { useState, useCallback } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { MessageSquare, Image, Video, Code, LogOut, CreditCard, Zap } from "lucide-react";
+import { MessageSquare, Image, Video, Code, LogOut, CreditCard, Zap, Handshake } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import CreditFeedback from "@/components/CreditFeedback";
 
