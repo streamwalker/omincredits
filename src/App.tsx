@@ -9,6 +9,9 @@ import Purchase from "./pages/Purchase";
 import Redeem from "./pages/Redeem";
 import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
+import Partnerships from "./pages/Partnerships";
+import PartnershipPitch from "./pages/PartnershipPitch";
+import PartnershipOutreach from "./pages/PartnershipOutreach";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
