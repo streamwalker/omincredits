@@ -29,6 +29,9 @@ const App = () => (
             <Route path="/redeem" element={<Redeem />} />
             <Route path="/auth" element={<Auth />} />
             <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/partnerships" element={<Partnerships />} />
+            <Route path="/partnerships/pitch" element={<PartnershipPitch />} />
+            <Route path="/partnerships/outreach" element={<PartnershipOutreach />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>
