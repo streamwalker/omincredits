@@ -83,42 +83,8 @@ const TRACTION = [
   { label: "Revenue", value: "$[X]", sub: "prepaid credits" },
 ];
 
-const PRICING_TIERS = [
-  { price: "$25", credits: "100 OC", costPerOC: "$0.15", sellPerOC: "$0.25", margin: "40%" },
-  { price: "$50", credits: "250 OC", costPerOC: "$0.12", sellPerOC: "$0.20", margin: "40%" },
-  { price: "$100", credits: "600 OC", costPerOC: "$0.09", sellPerOC: "$0.167", margin: "46%" },
-  { price: "$200", credits: "1,400 OC", costPerOC: "$0.07", sellPerOC: "$0.143", margin: "51%" },
-];
 
-const REVENUE_BREAKDOWN = [
-  { metric: "Credit Sales Revenue", value: "100%" },
-  { metric: "API Cost (Wholesale)", value: "~45%" },
-  { metric: "Gross Profit", value: "~55%" },
-  { metric: "Operating Expenses", value: "~25%" },
-  { metric: "Net Margin", value: "~30%" },
-];
 
-const FIVE_YEAR = {
-  metrics: ["Users", "Credits Sold", "Revenue", "API Costs", "Gross Profit", "Gross Margin"],
-  years: [
-    ["1K", "100K OC", "$25K", "$15K", "$10K", "40%"],
-    ["10K", "1.5M OC", "$375K", "$200K", "$175K", "47%"],
-    ["50K", "10M OC", "$2.5M", "$1.2M", "$1.3M", "52%"],
-    ["200K", "50M OC", "$12.5M", "$5.5M", "$7M", "56%"],
-    ["500K", "150M OC", "$37.5M", "$15M", "$22.5M", "60%"],
-  ],
-};
-
-const TEN_YEAR = {
-  metrics: ["Users", "Credits Sold", "Revenue", "Gross Margin"],
-  years: [
-    ["1M", "400M OC", "$100M", "62%"],
-    ["2M", "1B OC", "$250M", "64%"],
-    ["4M", "2.5B OC", "$625M", "66%"],
-    ["7M", "5B OC", "$1.25B", "68%"],
-    ["10M", "10B OC", "$2.5B", "70%"],
-  ],
-};
 
 const ANGLES = [
   { icon: DollarSign, title: "Incremental Revenue", desc: "We bring prepaid users who wouldn't subscribe directly. New revenue you're not capturing today." },
