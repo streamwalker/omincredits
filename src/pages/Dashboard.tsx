@@ -193,11 +193,11 @@ const Dashboard = () => {
                 <div className="flex-1 min-w-[300px] p-9 border-l" style={{ borderColor: "hsl(var(--border))" }}>
                   <p className="text-[13px] font-medium text-muted-foreground uppercase tracking-wider mb-4">Estimated Uses</p>
                   <div className="grid grid-cols-2 gap-4">
-                    {SERVICES.map(({ icon: I, title, uses, color }) => (
+                    {SERVICES.map(({ icon: I, title, cost, color }) => (
                       <div key={title} className="flex items-center gap-2.5">
                         <I size={16} style={{ color }} />
                         <div>
-                          <p className="text-lg font-bold text-foreground">{uses}</p>
+                          <p className="text-lg font-bold text-foreground">{Math.floor(credits / cost)}</p>
                           <p className="text-[11px] text-muted-foreground">{title.split(" ").slice(-1)}</p>
                         </div>
                       </div>
