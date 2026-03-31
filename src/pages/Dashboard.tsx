@@ -13,10 +13,10 @@ import GlassCard from "@/components/redesign/GlassCard";
 import AnimatedCounter from "@/components/redesign/AnimatedCounter";
 
 const SERVICES = [
-  { key: "chat", icon: MessageSquare, title: "Chat with AI", cost: 1, color: "hsl(var(--primary))", uses: 742 },
-  { key: "image", icon: Image, title: "Generate Images", cost: 5, color: "hsl(var(--secondary))", uses: 148 },
-  { key: "video", icon: Video, title: "Create Video", cost: 25, color: "hsl(var(--color-warning))", uses: 29 },
-  { key: "code", icon: Code, title: "Build Something", cost: 10, color: "#EC4899", uses: 74 },
+  { key: "chat", icon: MessageSquare, title: "Chat with AI", cost: 1, color: "hsl(var(--primary))" },
+  { key: "image", icon: Image, title: "Generate Images", cost: 5, color: "hsl(var(--secondary))" },
+  { key: "video", icon: Video, title: "Create Video", cost: 25, color: "hsl(var(--color-warning))" },
+  { key: "code", icon: Code, title: "Build Something", cost: 10, color: "#EC4899" },
 ];
 
 const ACTIVITY = [
