@@ -1,4 +1,12 @@
+import { Link } from "react-router-dom";
 import { Sparkles } from "lucide-react";
+
+const LINKS = [
+  { label: "Privacy", to: "/privacy" },
+  { label: "Terms", to: "/terms" },
+  { label: "Support", to: "/support" },
+  { label: "FAQ", to: "/faq" },
+];
 
 const AppFooter = () => (
   <footer className="border-t py-10 px-6" style={{ background: "hsl(var(--muted))", borderColor: "hsl(var(--border))" }}>
@@ -11,8 +19,10 @@ const AppFooter = () => (
         <span className="text-xs text-muted-foreground ml-1">by Streamwalkers</span>
       </div>
       <div className="flex gap-6">
-        {["Privacy", "Terms", "Support", "FAQ"].map(item => (
-          <span key={item} className="text-[13px] text-muted-foreground cursor-pointer hover:text-foreground transition-colors">{item}</span>
+        {LINKS.map(item => (
+          <Link key={item.label} to={item.to} className="text-[13px] text-muted-foreground hover:text-foreground transition-colors">
+            {item.label}
+          </Link>
         ))}
       </div>
     </div>
