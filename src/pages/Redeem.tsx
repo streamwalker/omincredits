@@ -3,7 +3,10 @@ import { Link, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ArrowLeft, Sparkles } from "lucide-react";
+import { Sparkles } from "lucide-react";
+import AppHeader from "@/components/redesign/AppHeader";
+import AppFooter from "@/components/redesign/AppFooter";
+import GlassCard from "@/components/redesign/GlassCard";
 
 type Step = "input" | "success";
 
@@ -14,7 +17,6 @@ const Redeem = () => {
   const navigate = useNavigate();
 
   const handleRedeem = () => {
-    // Mock redemption — in real version this queries the database
     const mockCredits = code.length > 0 ? 600 : 0;
     setUnlockedCredits(mockCredits);
     setStep("success");
@@ -22,45 +24,39 @@ const Redeem = () => {
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
-      {/* Nav */}
-      <nav className="fixed top-0 w-full z-50 glass border-b border-border/30">
-        <div className="container mx-auto flex items-center h-16 px-4">
-          <Link to="/" className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors">
-            <ArrowLeft className="w-4 h-4" />
-            <span className="font-heading text-sm">Back</span>
-          </Link>
-        </div>
-      </nav>
+      <AppHeader />
 
-      <div className="flex-1 flex items-center justify-center px-4">
+      <div className="flex-1 flex items-center justify-center px-4 pt-24 pb-16">
         <div className="w-full max-w-md">
           <AnimatePresence mode="wait">
             {step === "input" && (
-              <motion.div key="input" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} className="text-center">
-                <h1 className="text-3xl font-heading font-bold mb-2">
-                  Redeem Your <span className="gradient-text">AI Credits</span>
-                </h1>
-                <p className="text-muted-foreground mb-8">Enter the code from your gift card</p>
+              <motion.div key="input" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }}>
+                <GlassCard hover={false} className="p-8 text-center">
+                  <h1 className="text-3xl font-heading font-bold mb-2">
+                    Redeem Your <span className="gradient-text">AI Credits</span>
+                  </h1>
+                  <p className="text-muted-foreground mb-8">Enter the code from your gift card</p>
 
-                <Input
-                  placeholder="SW-XXXXXX"
-                  value={code}
-                  onChange={(e) => setCode(e.target.value.toUpperCase())}
-                  className="bg-muted border-border text-center text-lg font-heading tracking-widest mb-4"
-                />
+                  <Input
+                    placeholder="SW-XXXXXX"
+                    value={code}
+                    onChange={(e) => setCode(e.target.value.toUpperCase())}
+                    className="bg-muted border-border text-center text-lg font-heading tracking-widest mb-4"
+                  />
 
-                <Button
-                  className="w-full bg-primary text-primary-foreground hover:bg-primary/90 font-heading font-semibold"
-                  onClick={handleRedeem}
-                  disabled={code.length < 3}
-                >
-                  Unlock Credits
-                </Button>
+                  <Button
+                    className="w-full bg-primary text-primary-foreground hover:bg-primary/90 font-heading font-semibold"
+                    onClick={handleRedeem}
+                    disabled={code.length < 3}
+                  >
+                    Unlock Credits
+                  </Button>
 
-                <p className="text-xs text-muted-foreground mt-4">
-                  Don't have an account?{" "}
-                  <Link to="/auth" className="text-primary hover:underline">Sign up first</Link>
-                </p>
+                  <p className="text-xs text-muted-foreground mt-4">
+                    Don't have an account?{" "}
+                    <Link to="/auth" className="text-primary hover:underline">Sign up first</Link>
+                  </p>
+                </GlassCard>
               </motion.div>
             )}
 
@@ -70,39 +66,41 @@ const Redeem = () => {
                 initial={{ opacity: 0, scale: 0.8 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ type: "spring", damping: 15 }}
-                className="text-center"
               >
-                {/* Background celebration glow */}
-                <div className="absolute inset-0 overflow-hidden pointer-events-none">
-                  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] rounded-full bg-primary/10 blur-[100px]" />
-                </div>
+                <GlassCard hover={false} className="p-8 text-center relative overflow-hidden">
+                  <div className="absolute inset-0 overflow-hidden pointer-events-none">
+                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] rounded-full blur-[100px]" style={{ background: "hsl(var(--primary) / 0.1)" }} />
+                  </div>
 
-                <motion.div
-                  initial={{ rotate: 0 }}
-                  animate={{ rotate: 360 }}
-                  transition={{ duration: 1, ease: "easeOut" }}
-                  className="w-20 h-20 rounded-full bg-primary/20 flex items-center justify-center mx-auto mb-6"
-                >
-                  <Sparkles className="w-10 h-10 text-primary" />
-                </motion.div>
+                  <motion.div
+                    initial={{ rotate: 0 }}
+                    animate={{ rotate: 360 }}
+                    transition={{ duration: 1, ease: "easeOut" }}
+                    className="w-20 h-20 rounded-full bg-primary/20 flex items-center justify-center mx-auto mb-6 relative z-10"
+                  >
+                    <Sparkles className="w-10 h-10 text-primary" />
+                  </motion.div>
 
-                <h1 className="text-3xl font-heading font-bold mb-2">You've Unlocked</h1>
-                <p className="text-5xl font-heading font-bold gradient-text mb-2">
-                  {unlockedCredits} OC
-                </p>
-                <p className="text-muted-foreground mb-8">OmniCredits™</p>
+                  <h1 className="text-3xl font-heading font-bold mb-2 relative z-10">You've Unlocked</h1>
+                  <p className="text-5xl font-heading font-bold gradient-text mb-2 relative z-10">
+                    {unlockedCredits} OC
+                  </p>
+                  <p className="text-muted-foreground mb-8 relative z-10">OmniCredits™</p>
 
-                <Button
-                  className="w-full bg-primary text-primary-foreground hover:bg-primary/90 font-heading font-semibold text-lg py-6"
-                  onClick={() => navigate("/dashboard")}
-                >
-                  Start Creating
-                </Button>
+                  <Button
+                    className="w-full bg-primary text-primary-foreground hover:bg-primary/90 font-heading font-semibold text-lg py-6 relative z-10"
+                    onClick={() => navigate("/dashboard")}
+                  >
+                    Start Creating
+                  </Button>
+                </GlassCard>
               </motion.div>
             )}
           </AnimatePresence>
         </div>
       </div>
+
+      <AppFooter />
     </div>
   );
 };
