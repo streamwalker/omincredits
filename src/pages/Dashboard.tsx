@@ -114,9 +114,17 @@ const Dashboard = () => {
       return;
     }
     if (!authLoading && user) {
-      // Simulate data fetch
-      const timer = setTimeout(() => setIsLoading(false), 800);
-      return () => clearTimeout(timer);
+      // Load real balance from database
+      const loadProfile = async () => {
+        const { data } = await supabase
+          .from("profiles")
+          .select("credit_balance")
+          .eq("user_id", user.id)
+          .single();
+        if (data) setCredits(data.credit_balance);
+        setIsLoading(false);
+      };
+      loadProfile();
     }
   }, [authLoading, user, navigate]);
 
