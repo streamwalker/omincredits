@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { MessageSquare, Image, Video, Code, CreditCard, Gift, ArrowRight } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
 import CreditFeedback from "@/components/CreditFeedback";
 import AppHeader from "@/components/redesign/AppHeader";
 import AppFooter from "@/components/redesign/AppFooter";
@@ -12,10 +13,10 @@ import GlassCard from "@/components/redesign/GlassCard";
 import AnimatedCounter from "@/components/redesign/AnimatedCounter";
 
 const SERVICES = [
-  { key: "chat", icon: MessageSquare, title: "Chat with AI", cost: 1, color: "hsl(var(--primary))", uses: 742 },
-  { key: "image", icon: Image, title: "Generate Images", cost: 5, color: "hsl(var(--secondary))", uses: 148 },
-  { key: "video", icon: Video, title: "Create Video", cost: 25, color: "hsl(var(--color-warning))", uses: 29 },
-  { key: "code", icon: Code, title: "Build Something", cost: 10, color: "#EC4899", uses: 74 },
+  { key: "chat", icon: MessageSquare, title: "Chat with AI", cost: 1, color: "hsl(var(--primary))" },
+  { key: "image", icon: Image, title: "Generate Images", cost: 5, color: "hsl(var(--secondary))" },
+  { key: "video", icon: Video, title: "Create Video", cost: 25, color: "hsl(var(--color-warning))" },
+  { key: "code", icon: Code, title: "Build Something", cost: 10, color: "#EC4899" },
 ];
 
 const ACTIVITY = [
@@ -113,9 +114,17 @@ const Dashboard = () => {
       return;
     }
     if (!authLoading && user) {
-      // Simulate data fetch
-      const timer = setTimeout(() => setIsLoading(false), 800);
-      return () => clearTimeout(timer);
+      // Load real balance from database
+      const loadProfile = async () => {
+        const { data } = await supabase
+          .from("profiles")
+          .select("credit_balance")
+          .eq("user_id", user.id)
+          .single();
+        if (data) setCredits(data.credit_balance);
+        setIsLoading(false);
+      };
+      loadProfile();
     }
   }, [authLoading, user, navigate]);
 
@@ -184,11 +193,11 @@ const Dashboard = () => {
                 <div className="flex-1 min-w-[300px] p-9 border-l" style={{ borderColor: "hsl(var(--border))" }}>
                   <p className="text-[13px] font-medium text-muted-foreground uppercase tracking-wider mb-4">Estimated Uses</p>
                   <div className="grid grid-cols-2 gap-4">
-                    {SERVICES.map(({ icon: I, title, uses, color }) => (
+                    {SERVICES.map(({ icon: I, title, cost, color }) => (
                       <div key={title} className="flex items-center gap-2.5">
                         <I size={16} style={{ color }} />
                         <div>
-                          <p className="text-lg font-bold text-foreground">{uses}</p>
+                          <p className="text-lg font-bold text-foreground">{Math.floor(credits / cost)}</p>
                           <p className="text-[11px] text-muted-foreground">{title.split(" ").slice(-1)}</p>
                         </div>
                       </div>
