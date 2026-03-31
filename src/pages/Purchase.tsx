@@ -4,8 +4,11 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { ArrowLeft, Check } from "lucide-react";
-import DigitalCard from "@/components/DigitalCard";
+import { Check } from "lucide-react";
+import AppHeader from "@/components/redesign/AppHeader";
+import AppFooter from "@/components/redesign/AppFooter";
+import GlassCard from "@/components/redesign/GlassCard";
+import GiftCardVisual from "@/components/redesign/GiftCardVisual";
 
 const PLANS = [
   { price: 25, credits: 100 },
@@ -35,25 +38,16 @@ const Purchase = () => {
   };
 
   const handlePurchase = () => {
-    // Mock purchase — generate a fake code
     const code = "SW-" + Math.random().toString(36).substring(2, 8).toUpperCase();
     setGeneratedCode(code);
     setStep("confirmation");
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Nav */}
-      <nav className="fixed top-0 w-full z-50 glass border-b border-border/30">
-        <div className="container mx-auto flex items-center h-16 px-4">
-          <Link to="/" className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors">
-            <ArrowLeft className="w-4 h-4" />
-            <span className="font-heading text-sm">Back</span>
-          </Link>
-        </div>
-      </nav>
+    <div className="min-h-screen bg-background flex flex-col">
+      <AppHeader />
 
-      <div className="container mx-auto pt-28 pb-16 px-4 max-w-2xl">
+      <div className="flex-1 container mx-auto pt-28 pb-16 px-4 max-w-2xl">
         <AnimatePresence mode="wait">
           {/* Step 1: Select Amount */}
           {step === "select" && (
@@ -64,14 +58,14 @@ const Purchase = () => {
               <p className="text-muted-foreground mb-8">Choose an amount to gift</p>
               <div className="grid grid-cols-2 gap-4">
                 {PLANS.map((plan) => (
-                  <button
+                  <GlassCard
                     key={plan.price}
                     onClick={() => handleSelectPlan(plan)}
-                    className="glass glow-border rounded-xl p-6 text-center hover:bg-card/80 transition-all"
+                    className="text-center"
                   >
                     <p className="text-3xl font-heading font-bold">${plan.price}</p>
                     <p className="text-sm text-muted-foreground mt-1">{plan.credits} OmniCredits</p>
-                  </button>
+                  </GlassCard>
                 ))}
               </div>
             </motion.div>
@@ -85,50 +79,52 @@ const Purchase = () => {
               </h1>
               <p className="text-muted-foreground mb-8">${selectedPlan.price} gift card</p>
 
-              <div className="space-y-4">
-                <div>
-                  <label className="text-sm font-medium mb-1.5 block">Your Name</label>
-                  <Input
-                    placeholder="Enter your name"
-                    value={senderName}
-                    onChange={(e) => setSenderName(e.target.value)}
-                    className="bg-muted border-border"
-                  />
-                </div>
-                <div>
-                  <label className="text-sm font-medium mb-1.5 block">Recipient Email</label>
-                  <Input
-                    type="email"
-                    placeholder="recipient@email.com"
-                    value={recipientEmail}
-                    onChange={(e) => setRecipientEmail(e.target.value)}
-                    className="bg-muted border-border"
-                  />
-                </div>
-                <div>
-                  <label className="text-sm font-medium mb-1.5 block">Message (optional)</label>
-                  <Textarea
-                    placeholder="Add a personal message..."
-                    value={message}
-                    onChange={(e) => setMessage(e.target.value)}
-                    className="bg-muted border-border resize-none"
-                    rows={3}
-                  />
-                </div>
+              <GlassCard hover={false} className="p-8">
+                <div className="space-y-4">
+                  <div>
+                    <label className="text-sm font-medium mb-1.5 block">Your Name</label>
+                    <Input
+                      placeholder="Enter your name"
+                      value={senderName}
+                      onChange={(e) => setSenderName(e.target.value)}
+                      className="bg-muted border-border"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium mb-1.5 block">Recipient Email</label>
+                    <Input
+                      type="email"
+                      placeholder="recipient@email.com"
+                      value={recipientEmail}
+                      onChange={(e) => setRecipientEmail(e.target.value)}
+                      className="bg-muted border-border"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium mb-1.5 block">Message (optional)</label>
+                    <Textarea
+                      placeholder="Add a personal message..."
+                      value={message}
+                      onChange={(e) => setMessage(e.target.value)}
+                      className="bg-muted border-border resize-none"
+                      rows={3}
+                    />
+                  </div>
 
-                <div className="flex gap-3 pt-4">
-                  <Button variant="outline" onClick={() => setStep("select")}>
-                    Back
-                  </Button>
-                  <Button
-                    className="flex-1 bg-primary text-primary-foreground hover:bg-primary/90 font-heading font-semibold"
-                    onClick={handlePurchase}
-                    disabled={!senderName || !recipientEmail}
-                  >
-                    Pay ${selectedPlan.price}
-                  </Button>
+                  <div className="flex gap-3 pt-4">
+                    <Button variant="outline" onClick={() => setStep("select")}>
+                      Back
+                    </Button>
+                    <Button
+                      className="flex-1 bg-primary text-primary-foreground hover:bg-primary/90 font-heading font-semibold"
+                      onClick={handlePurchase}
+                      disabled={!senderName || !recipientEmail}
+                    >
+                      Pay ${selectedPlan.price}
+                    </Button>
+                  </div>
                 </div>
-              </div>
+              </GlassCard>
             </motion.div>
           )}
 
@@ -145,16 +141,16 @@ const Purchase = () => {
                 </p>
               </div>
 
-              <DigitalCard
+              <GiftCardVisual
+                recipientName={recipientEmail}
+                amount={selectedPlan.price}
                 credits={selectedPlan.credits}
-                recipientEmail={recipientEmail}
-                message={message}
               />
 
-              <div className="mt-8 glass rounded-xl p-4 text-center">
+              <GlassCard hover={false} className="mt-8 text-center">
                 <p className="text-xs text-muted-foreground mb-1">Redemption Code</p>
                 <p className="text-lg font-heading font-bold tracking-wider gradient-text">{generatedCode}</p>
-              </div>
+              </GlassCard>
 
               <div className="mt-8 flex gap-3 justify-center">
                 <Link to="/">
@@ -173,6 +169,8 @@ const Purchase = () => {
           )}
         </AnimatePresence>
       </div>
+
+      <AppFooter />
     </div>
   );
 };
