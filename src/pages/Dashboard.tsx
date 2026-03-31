@@ -2,39 +2,25 @@ import { useState, useCallback } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { MessageSquare, Image, Video, Code, LogOut, CreditCard, Zap, Handshake } from "lucide-react";
+import { MessageSquare, Image, Video, Code, CreditCard, Gift, ArrowRight } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import CreditFeedback from "@/components/CreditFeedback";
+import AppHeader from "@/components/redesign/AppHeader";
+import AppFooter from "@/components/redesign/AppFooter";
+import GlassCard from "@/components/redesign/GlassCard";
+import AnimatedCounter from "@/components/redesign/AnimatedCounter";
 
-const ACTIONS = [
-  {
-    icon: MessageSquare,
-    title: "Chat with AI",
-    desc: "Ask anything, write content, brainstorm ideas",
-    cost: 1,
-    color: "from-primary to-primary/60",
-  },
-  {
-    icon: Image,
-    title: "Generate Images",
-    desc: "Create stunning visuals from text prompts",
-    cost: 5,
-    color: "from-secondary to-secondary/60",
-  },
-  {
-    icon: Video,
-    title: "Create Video",
-    desc: "Produce short AI-generated videos",
-    cost: 25,
-    color: "from-accent to-accent/60",
-  },
-  {
-    icon: Code,
-    title: "Build Something",
-    desc: "Code projects with AI assistance",
-    cost: 10,
-    color: "from-primary to-accent",
-  },
+const SERVICES = [
+  { key: "chat", icon: MessageSquare, title: "Chat with AI", cost: 1, color: "hsl(var(--primary))", uses: 742 },
+  { key: "image", icon: Image, title: "Generate Images", cost: 5, color: "hsl(var(--secondary))", uses: 148 },
+  { key: "video", icon: Video, title: "Create Video", cost: 25, color: "hsl(var(--color-warning))", uses: 29 },
+  { key: "code", icon: Code, title: "Build Something", cost: 10, color: "#EC4899", uses: 74 },
+];
+
+const ACTIVITY = [
+  { type: "chat", desc: "Asked about meal planning", time: "2h ago", credits: -1 },
+  { type: "image", desc: "Generated a sunset cityscape", time: "Yesterday", credits: -5 },
+  { type: "gift", desc: "Received gift from Sarah", time: "3 days ago", credits: +100 },
 ];
 
 const MOCK_RESPONSES = [
@@ -45,21 +31,19 @@ const MOCK_RESPONSES = [
 ];
 
 const Dashboard = () => {
-  const { user, signOut } = useAuth();
+  const { user } = useAuth();
   const navigate = useNavigate();
   const [credits, setCredits] = useState(742);
   const [feedbackAmount, setFeedbackAmount] = useState<number | null>(null);
   const [feedbackKey, setFeedbackKey] = useState(0);
-  const [activeAction, setActiveAction] = useState<string | null>(null);
+  const [activeSvc, setActiveSvc] = useState<string | null>(null);
   const [chatMessages, setChatMessages] = useState<{ role: string; content: string }[]>([]);
   const [chatInput, setChatInput] = useState("");
-  const [usedToday, setUsedToday] = useState(0);
 
   const deductCredits = useCallback((amount: number) => {
-    setCredits((prev) => Math.max(0, prev - amount));
-    setUsedToday((prev) => prev + amount);
+    setCredits(prev => Math.max(0, prev - amount));
     setFeedbackAmount(amount);
-    setFeedbackKey((prev) => prev + 1);
+    setFeedbackKey(prev => prev + 1);
     setTimeout(() => setFeedbackAmount(null), 1500);
   }, []);
 
@@ -67,206 +51,156 @@ const Dashboard = () => {
     if (!chatInput.trim() || credits < 1) return;
     const userMsg = chatInput;
     setChatInput("");
-    setChatMessages((prev) => [...prev, { role: "user", content: userMsg }]);
+    setChatMessages(prev => [...prev, { role: "user", content: userMsg }]);
     deductCredits(1);
-
-    // Mock AI response
     setTimeout(() => {
-      const response = MOCK_RESPONSES[Math.floor(Math.random() * MOCK_RESPONSES.length)];
-      setChatMessages((prev) => [...prev, { role: "ai", content: response }]);
+      setChatMessages(prev => [...prev, { role: "ai", content: MOCK_RESPONSES[Math.floor(Math.random() * MOCK_RESPONSES.length)] }]);
     }, 800);
   };
 
-  const handleAction = (action: typeof ACTIONS[0]) => {
-    if (credits < action.cost) return;
-    if (action.title === "Chat with AI") {
-      setActiveAction("chat");
-    } else {
-      deductCredits(action.cost);
-      setActiveAction(action.title);
-      setTimeout(() => setActiveAction(null), 2000);
-    }
-  };
-
-  const handleSignOut = async () => {
-    await signOut();
-    navigate("/");
-  };
+  if (!user) {
+    navigate("/auth");
+    return null;
+  }
 
   return (
     <div className="min-h-screen bg-background">
       <AnimatePresence>
         <CreditFeedback key={feedbackKey} amount={feedbackAmount} />
       </AnimatePresence>
+      <AppHeader />
 
-      {/* Nav */}
-      <nav className="fixed top-0 w-full z-50 glass border-b border-border/30">
-        <div className="container mx-auto flex items-center justify-between h-16 px-4">
-          <Link to="/" className="font-heading font-bold text-lg tracking-wider gradient-text">
-            STREAMWALKERS
-          </Link>
-          <div className="flex items-center gap-4">
-            <Link to="/partnerships">
-              <Button variant="ghost" size="sm" className="gap-1.5">
-                <Handshake className="w-4 h-4" /> Partnerships
-              </Button>
-            </Link>
-            <div className="flex items-center gap-2 glass rounded-full px-4 py-1.5">
-              <Zap className="w-4 h-4 text-primary" />
-              <span className="font-heading font-bold text-sm">{credits} OC</span>
-            </div>
-            <Button variant="ghost" size="icon" onClick={handleSignOut}>
-              <LogOut className="w-4 h-4" />
-            </Button>
-          </div>
-        </div>
-      </nav>
-
-      <div className="container mx-auto pt-24 pb-16 px-4">
-        {/* Credit Balance */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="text-center mb-12"
-        >
-          <p className="text-sm text-muted-foreground mb-1">Credits Remaining</p>
-          <p className="text-6xl font-heading font-bold gradient-text">{credits}</p>
-          <p className="text-sm text-muted-foreground mt-1">OmniCredits™</p>
-        </motion.div>
-
-        {/* Active Action View: Chat */}
-        <AnimatePresence mode="wait">
-          {activeAction === "chat" ? (
-            <motion.div
-              key="chat"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              className="max-w-2xl mx-auto mb-8"
-            >
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="font-heading font-bold text-lg">Chat with AI</h2>
-                <Button variant="ghost" size="sm" onClick={() => { setActiveAction(null); setChatMessages([]); }}>
-                  Close
-                </Button>
+      <section className="py-10 px-6 min-h-[80vh]">
+        <div className="max-w-[1200px] mx-auto">
+          {/* Balance Card */}
+          <GlassCard className="p-0 overflow-hidden mb-8" hover={false}>
+            <div className="flex flex-wrap">
+              <div className="flex-1 min-w-[360px] p-9">
+                <p className="text-[13px] font-medium text-muted-foreground uppercase tracking-wider">Your Balance</p>
+                <div className="mt-2 flex items-baseline gap-2">
+                  <AnimatedCounter value={credits} className="text-[56px] font-bold tracking-[-2px] leading-none" />
+                  <span className="text-base text-muted-foreground font-medium">OC</span>
+                </div>
+                <div className="mt-4 flex gap-2.5">
+                  <Link to="/purchase">
+                    <Button size="sm" className="rounded-full gap-1.5" style={{ background: "var(--cta-gradient)" }}>
+                      <Gift size={14} /> Gift Credits
+                    </Button>
+                  </Link>
+                  <Link to="/purchase">
+                    <Button size="sm" variant="outline" className="rounded-full gap-1.5">
+                      <CreditCard size={14} /> Buy More
+                    </Button>
+                  </Link>
+                </div>
               </div>
-              <div className="glass rounded-xl p-4 min-h-[300px] flex flex-col">
-                <div className="flex-1 space-y-3 overflow-y-auto mb-4 max-h-[400px]">
-                  {chatMessages.length === 0 && (
-                    <p className="text-muted-foreground text-sm text-center mt-12">Start a conversation...</p>
-                  )}
-                  {chatMessages.map((msg, i) => (
-                    <div key={i} className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
-                      <div className={`max-w-[80%] rounded-xl px-4 py-2 text-sm ${
-                        msg.role === "user"
-                          ? "bg-primary text-primary-foreground"
-                          : "bg-muted text-foreground"
-                      }`}>
-                        {msg.content}
+              <div className="flex-1 min-w-[300px] p-9 border-l" style={{ borderColor: "hsl(var(--border))" }}>
+                <p className="text-[13px] font-medium text-muted-foreground uppercase tracking-wider mb-4">Estimated Uses</p>
+                <div className="grid grid-cols-2 gap-4">
+                  {SERVICES.map(({ icon: I, title, uses, color }) => (
+                    <div key={title} className="flex items-center gap-2.5">
+                      <I size={16} style={{ color }} />
+                      <div>
+                        <p className="text-lg font-bold text-foreground">{uses}</p>
+                        <p className="text-[11px] text-muted-foreground">{title.split(" ").slice(-1)}</p>
                       </div>
                     </div>
                   ))}
                 </div>
-                <div className="flex gap-2">
-                  <input
-                    value={chatInput}
-                    onChange={(e) => setChatInput(e.target.value)}
-                    onKeyDown={(e) => e.key === "Enter" && handleChatSend()}
-                    placeholder="Type a message... (1 OC per prompt)"
-                    className="flex-1 bg-muted rounded-lg px-4 py-2 text-sm border border-border focus:outline-none focus:ring-1 focus:ring-primary"
-                  />
-                  <Button
-                    size="sm"
-                    onClick={handleChatSend}
-                    disabled={!chatInput.trim() || credits < 1}
-                    className="bg-primary text-primary-foreground"
-                  >
-                    Send
-                  </Button>
-                </div>
-              </div>
-            </motion.div>
-          ) : activeAction && activeAction !== "chat" ? (
-            <motion.div
-              key="mock"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="max-w-md mx-auto text-center glass rounded-xl p-8 mb-8"
-            >
-              <p className="text-muted-foreground text-sm">Processing...</p>
-              <p className="font-heading font-bold mt-2">{activeAction}</p>
-              <p className="text-xs text-muted-foreground mt-1">Coming soon — feature in development</p>
-            </motion.div>
-          ) : null}
-        </AnimatePresence>
-
-        {/* Action Grid */}
-        {!activeAction && (
-          <div className="grid sm:grid-cols-2 gap-4 max-w-3xl mx-auto mb-12">
-            {ACTIONS.map((action, i) => (
-              <motion.button
-                key={action.title}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.1 }}
-                onClick={() => handleAction(action)}
-                disabled={credits < action.cost}
-                className="glass glow-border rounded-xl p-6 text-left hover:bg-card/80 transition-all disabled:opacity-40 disabled:cursor-not-allowed group"
-              >
-                <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${action.color} flex items-center justify-center mb-4`}>
-                  <action.icon className="w-6 h-6 text-primary-foreground" />
-                </div>
-                <h3 className="font-heading font-semibold mb-1">{action.title}</h3>
-                <p className="text-sm text-muted-foreground mb-3">{action.desc}</p>
-                <span className="text-xs font-heading text-primary">{action.cost} OC per use</span>
-              </motion.button>
-            ))}
-          </div>
-        )}
-
-        {/* Usage Panel & Reload */}
-        <div className="max-w-3xl mx-auto grid sm:grid-cols-2 gap-4">
-          <div className="glass rounded-xl p-6">
-            <h3 className="font-heading font-semibold mb-4 text-sm text-muted-foreground">Usage Today</h3>
-            <div className="space-y-3">
-              <div className="flex justify-between">
-                <span className="text-sm">Credits Used</span>
-                <span className="font-heading font-bold">{usedToday} OC</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-sm">Remaining</span>
-                <span className="font-heading font-bold gradient-text">{credits} OC</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-sm">Est. Chat Prompts Left</span>
-                <span className="font-heading font-bold">{credits}</span>
               </div>
             </div>
-          </div>
+          </GlassCard>
 
-          <div className="glass rounded-xl p-6 flex flex-col items-center justify-center text-center">
-            {credits < 50 ? (
-              <>
-                <CreditCard className="w-8 h-8 text-accent mb-2" />
-                <p className="font-heading font-semibold mb-1">Running Low!</p>
-                <p className="text-sm text-muted-foreground mb-4">Top up your credits to keep creating</p>
-              </>
-            ) : (
-              <>
-                <CreditCard className="w-8 h-8 text-primary mb-2" />
-                <p className="font-heading font-semibold mb-1">Need More?</p>
-                <p className="text-sm text-muted-foreground mb-4">Buy credits or gift to a friend</p>
-              </>
+          {/* Chat or active view */}
+          <AnimatePresence mode="wait">
+            {activeSvc === "chat" && (
+              <motion.div key="chat" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} className="max-w-2xl mx-auto mb-8">
+                <div className="flex items-center justify-between mb-4">
+                  <h2 className="font-bold text-lg">Chat with AI</h2>
+                  <Button variant="ghost" size="sm" onClick={() => { setActiveSvc(null); setChatMessages([]); }}>Close</Button>
+                </div>
+                <GlassCard hover={false} className="p-4 min-h-[300px] flex flex-col">
+                  <div className="flex-1 space-y-3 overflow-y-auto mb-4 max-h-[400px]">
+                    {chatMessages.length === 0 && <p className="text-muted-foreground text-sm text-center mt-12">Start a conversation...</p>}
+                    {chatMessages.map((msg, i) => (
+                      <div key={i} className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
+                        <div className={`max-w-[80%] rounded-xl px-4 py-2 text-sm ${msg.role === "user" ? "bg-primary text-primary-foreground" : "bg-muted text-foreground"}`}>
+                          {msg.content}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="flex gap-2">
+                    <input
+                      value={chatInput}
+                      onChange={e => setChatInput(e.target.value)}
+                      onKeyDown={e => e.key === "Enter" && handleChatSend()}
+                      placeholder="Type a message... (1 OC per prompt)"
+                      className="flex-1 bg-muted rounded-lg px-4 py-2 text-sm border focus:outline-none focus:ring-1 focus:ring-primary"
+                      style={{ borderColor: "hsl(var(--border))" }}
+                    />
+                    <Button size="sm" onClick={handleChatSend} disabled={!chatInput.trim() || credits < 1}>Send</Button>
+                  </div>
+                </GlassCard>
+              </motion.div>
             )}
-            <Link to="/purchase">
-              <Button className="bg-primary text-primary-foreground hover:bg-primary/90 font-heading">
-                Buy More Credits
-              </Button>
-            </Link>
-          </div>
+          </AnimatePresence>
+
+          {/* Create Something */}
+          {activeSvc !== "chat" && (
+            <>
+              <h3 className="text-xl font-bold text-foreground mb-4">Create Something</h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+                {SERVICES.map(({ key, icon: I, title, cost, color }) => (
+                  <GlassCard
+                    key={key}
+                    onClick={() => {
+                      if (key === "chat") setActiveSvc("chat");
+                      else if (credits >= cost) deductCredits(cost);
+                    }}
+                    className={`flex items-center gap-4 p-5 ${activeSvc === key ? "border-2" : ""}`}
+                    style={activeSvc === key ? { borderColor: color } : undefined}
+                  >
+                    <div className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: `${color}15` }}>
+                      <I size={20} style={{ color }} />
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-[15px] font-semibold text-foreground">{title}</p>
+                      <p className="text-[13px] font-medium" style={{ color }}>{cost} OC per use</p>
+                    </div>
+                    <ArrowRight size={16} className="text-muted-foreground" />
+                  </GlassCard>
+                ))}
+              </div>
+            </>
+          )}
+
+          {/* Recent Activity */}
+          <h3 className="text-xl font-bold text-foreground mb-4">Recent Activity</h3>
+          <GlassCard hover={false} className="p-0">
+            {ACTIVITY.map((item, i) => (
+              <div key={i} className="flex items-center justify-between px-6 py-4" style={{ borderBottom: i < ACTIVITY.length - 1 ? "1px solid hsl(var(--border))" : "none" }}>
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-[10px] accent-soft flex items-center justify-center">
+                    {item.type === "chat" && <MessageSquare size={16} className="text-primary" />}
+                    {item.type === "image" && <Image size={16} className="text-secondary" />}
+                    {item.type === "gift" && <Gift size={16} className="text-warning" />}
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-foreground">{item.desc}</p>
+                    <p className="text-xs text-muted-foreground">{item.time}</p>
+                  </div>
+                </div>
+                <span className={`text-sm font-semibold ${item.credits > 0 ? "text-success" : "text-muted-foreground"}`}>
+                  {item.credits > 0 ? "+" : ""}{item.credits} OC
+                </span>
+              </div>
+            ))}
+          </GlassCard>
         </div>
-      </div>
+      </section>
+
+      <AppFooter />
     </div>
   );
 };
