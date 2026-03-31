@@ -4,7 +4,9 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Check } from "lucide-react";
+import { Check, Loader2 } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 import AppHeader from "@/components/redesign/AppHeader";
 import AppFooter from "@/components/redesign/AppFooter";
 import GlassCard from "@/components/redesign/GlassCard";
@@ -22,25 +24,54 @@ type Step = "select" | "details" | "confirmation";
 const Purchase = () => {
   const [searchParams] = useSearchParams();
   const preselected = searchParams.get("amount");
+  const { toast } = useToast();
 
   const [step, setStep] = useState<Step>(preselected ? "details" : "select");
   const [selectedPlan, setSelectedPlan] = useState(
     PLANS.find((p) => p.price === Number(preselected)) || null
   );
   const [senderName, setSenderName] = useState("");
+  const [senderEmail, setSenderEmail] = useState("");
   const [recipientEmail, setRecipientEmail] = useState("");
   const [message, setMessage] = useState("");
   const [generatedCode, setGeneratedCode] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const handleSelectPlan = (plan: typeof PLANS[0]) => {
     setSelectedPlan(plan);
     setStep("details");
   };
 
-  const handlePurchase = () => {
+  const handlePurchase = async () => {
+    if (!selectedPlan || !senderName || !senderEmail || !recipientEmail) return;
+    setLoading(true);
+
     const code = "SW-" + Math.random().toString(36).substring(2, 8).toUpperCase();
-    setGeneratedCode(code);
-    setStep("confirmation");
+
+    try {
+      const { error } = await supabase.from("gift_cards").insert({
+        code,
+        amount_usd: selectedPlan.price,
+        credits: selectedPlan.credits,
+        sender_name: senderName,
+        sender_email: senderEmail,
+        recipient_email: recipientEmail,
+        message: message || null,
+      });
+
+      if (error) throw error;
+
+      setGeneratedCode(code);
+      setStep("confirmation");
+    } catch (err: any) {
+      toast({
+        title: "Purchase failed",
+        description: err.message || "Something went wrong. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -91,6 +122,16 @@ const Purchase = () => {
                     />
                   </div>
                   <div>
+                    <label className="text-sm font-medium mb-1.5 block">Your Email</label>
+                    <Input
+                      type="email"
+                      placeholder="you@email.com"
+                      value={senderEmail}
+                      onChange={(e) => setSenderEmail(e.target.value)}
+                      className="bg-muted border-border"
+                    />
+                  </div>
+                  <div>
                     <label className="text-sm font-medium mb-1.5 block">Recipient Email</label>
                     <Input
                       type="email"
@@ -118,9 +159,9 @@ const Purchase = () => {
                     <Button
                       className="flex-1 bg-primary text-primary-foreground hover:bg-primary/90 font-heading font-semibold"
                       onClick={handlePurchase}
-                      disabled={!senderName || !recipientEmail}
+                      disabled={!senderName || !senderEmail || !recipientEmail || loading}
                     >
-                      Pay ${selectedPlan.price}
+                      {loading ? <><Loader2 className="w-4 h-4 animate-spin mr-2" /> Processing...</> : `Pay $${selectedPlan.price}`}
                     </Button>
                   </div>
                 </div>
@@ -156,14 +197,20 @@ const Purchase = () => {
                 <Link to="/">
                   <Button variant="outline">Back to Home</Button>
                 </Link>
-                <Link to="/purchase">
-                  <Button
-                    className="bg-primary text-primary-foreground hover:bg-primary/90 font-heading"
-                    onClick={() => { setStep("select"); setSelectedPlan(null); }}
-                  >
-                    Send Another
-                  </Button>
-                </Link>
+                <Button
+                  className="bg-primary text-primary-foreground hover:bg-primary/90 font-heading"
+                  onClick={() => {
+                    setStep("select");
+                    setSelectedPlan(null);
+                    setSenderName("");
+                    setSenderEmail("");
+                    setRecipientEmail("");
+                    setMessage("");
+                    setGeneratedCode("");
+                  }}
+                >
+                  Send Another
+                </Button>
               </div>
             </motion.div>
           )}

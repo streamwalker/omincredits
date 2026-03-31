@@ -3,7 +3,10 @@ import { Link, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Sparkles } from "lucide-react";
+import { Sparkles, Loader2 } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
+import { useToast } from "@/hooks/use-toast";
 import AppHeader from "@/components/redesign/AppHeader";
 import AppFooter from "@/components/redesign/AppFooter";
 import GlassCard from "@/components/redesign/GlassCard";
@@ -14,12 +17,42 @@ const Redeem = () => {
   const [step, setStep] = useState<Step>("input");
   const [code, setCode] = useState("");
   const [unlockedCredits, setUnlockedCredits] = useState(0);
+  const [loading, setLoading] = useState(false);
+  const { user } = useAuth();
+  const { toast } = useToast();
   const navigate = useNavigate();
 
-  const handleRedeem = () => {
-    const mockCredits = code.length > 0 ? 600 : 0;
-    setUnlockedCredits(mockCredits);
-    setStep("success");
+  const handleRedeem = async () => {
+    if (!user) {
+      toast({
+        title: "Sign in required",
+        description: "Please sign in or create an account to redeem credits.",
+        variant: "destructive",
+      });
+      navigate("/auth");
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("redeem-gift-card", {
+        body: { code: code.trim() },
+      });
+
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+
+      setUnlockedCredits(data.credits);
+      setStep("success");
+    } catch (err: any) {
+      toast({
+        title: "Redemption failed",
+        description: err.message || "Invalid or already redeemed code.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -47,15 +80,17 @@ const Redeem = () => {
                   <Button
                     className="w-full bg-primary text-primary-foreground hover:bg-primary/90 font-heading font-semibold"
                     onClick={handleRedeem}
-                    disabled={code.length < 3}
+                    disabled={code.length < 3 || loading}
                   >
-                    Unlock Credits
+                    {loading ? <><Loader2 className="w-4 h-4 animate-spin mr-2" /> Redeeming...</> : "Unlock Credits"}
                   </Button>
 
-                  <p className="text-xs text-muted-foreground mt-4">
-                    Don't have an account?{" "}
-                    <Link to="/auth" className="text-primary hover:underline">Sign up first</Link>
-                  </p>
+                  {!user && (
+                    <p className="text-xs text-muted-foreground mt-4">
+                      Don't have an account?{" "}
+                      <Link to="/auth" className="text-primary hover:underline">Sign up first</Link>
+                    </p>
+                  )}
                 </GlassCard>
               </motion.div>
             )}
