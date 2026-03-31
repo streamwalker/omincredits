@@ -1,71 +1,78 @@
 
 
-# Add Tooltips, Info Icons & Hover Cards to Financial Models
+# Rebuild Website Using "Warm Precision" Redesign
 
-Enhance `src/components/FinancialModels.tsx` with contextual help throughout all four panels so investors can understand every metric, chart, and slider without prior knowledge.
+Adapt the uploaded single-file redesign (`OmniCredits-Redesign.jsx`) into the existing multi-page React Router + Tailwind + shadcn project structure. This is a full visual overhaul across all major pages.
 
-## What Gets Added
+## What Changes
 
-### New Helper Component: `InfoTip`
-A reusable inline component combining a small `Info` icon with a `Tooltip` — hover to reveal explanation text. Used everywhere below.
+The redesign shifts from a dark-only crypto aesthetic to a "Warm Precision" design with light mode as default, dark mode as option, glassmorphism cards, interactive gift card visualization, animated counters, trust badges, and conversion-optimized layouts.
 
-```text
-[metric label] ⓘ  ← hover shows tooltip
-```
+## Architecture
 
-### 1. UnitEconomicsPanel — Tooltips Added
-- **Section header**: "Unit economics show the per-credit profitability across pricing tiers"
-- **API Cost Multiplier slider**: "Simulates wholesale API price changes. 1x = current rates. Drag to stress-test margins."
-- **Blended Cost/OC**: "Average cost to fulfill one OmniCredit across all tiers"
-- **Blended Sell/OC**: "Average revenue earned per OmniCredit sold"
-- **Blended Margin**: "Percentage of revenue retained after API costs. Above 40% = healthy."
-- **Revenue Breakdown pie**: "How each dollar of credit revenue is allocated"
-- **Cost vs Sell bar chart**: "Visual comparison of wholesale cost vs retail price per tier — taller green = more margin"
+### New Shared Components (`src/components/redesign/`)
+- **`ThemeProvider.tsx`** — React context for light/dark theme toggle, stores preference in localStorage
+- **`GlassCard.tsx`** — Reusable glassmorphism card with hover lift effect
+- **`GiftCardVisual.tsx`** — Interactive 3D-tilt gift card with mouse tracking
+- **`AnimatedCounter.tsx`** — Smooth number counter animation
+- **`PillButton.tsx`** — Rounded CTA buttons with gradient backgrounds
+- **`SectionHeading.tsx`** — Consistent section header with subtitle
+- **`StatusBadge.tsx`** / **`PriorityBadge.tsx`** — Partnership status indicators
 
-### 2. ProjectionCharts — Tooltips Added
-- **Section header**: "Growth projections based on current pricing and market assumptions"
-- **Revenue/API/Profit area chart**: "Shaded area between revenue and API costs represents gross profit"
-- **User Growth bar chart**: "Projected active users per year based on organic + paid acquisition"
-- **Gross Margin line chart**: "Margin improves over time through volume discounts and enterprise adoption"
-- **Tab labels**: 5-Year ("Near-term execution phase"), 10-Year ("Full market maturity"), Combined ("Complete trajectory")
-- **Assumptions footnote**: add HoverCard with detailed assumption breakdown
+### Design System Updates
+- **`tailwind.config.ts`** — Add new color tokens for light/dark themes (warm off-white `#FAFAF8` light bg, `#0F1119` dark bg, accent `#7C3AED` / `#A78BFA`)
+- **`src/index.css`** — Update CSS variables for both light and dark themes, add new glass/glow utilities, set light mode as default
 
-### 3. ScenarioTesting — Tooltips Added
-- **Section header**: "Compare outcomes under different market conditions"
-- **Bull Case tab**: "Accelerated adoption: 1.5x users, 1.3x revenue, +5% margin improvement"
-- **Base Case tab**: "Current trajectory with no adjustments"
-- **Bear Case tab**: "Adverse conditions: 0.5x users, 0.6x revenue, -8% margin compression"
-- **Each table header** (Y5 Revenue, Y5 Users, etc.): brief explanation of what drives that number
-- **Comparison chart title**: "Side-by-side revenue outcomes help quantify upside vs downside risk"
+### Page Rewrites
+1. **`src/pages/Index.tsx`** — Complete rebuild with:
+   - New hero with gift card visual + trust badges ("Stripe Secured", "Instant Delivery", "Never Expires")
+   - "How It Works" 4-step section
+   - Pricing with smart tier anchoring ("Most Popular" on $100, "Best Value" on $200, savings %)
+   - "What Can You Create" with hover preview cards
+   - Updated footer with links
 
-### 4. StressTest — Tooltips Added
-- **Section header**: "Drag sliders to model worst-case scenarios and find breaking points"
-- **API Cost Increase slider**: "What if providers raise API prices? Models impact on margins."
-- **User Churn Rate slider**: "Annual percentage of users who stop purchasing. Industry avg: 10-15%."
-- **Avg Credit Purchase slider**: "Average transaction size. Higher = better unit economics."
-- **Market Growth Rate slider**: "Overall market expansion multiplier. 1x = organic only."
-- **Y5 Revenue gauge**: "Projected Year 5 revenue under stress conditions. Green ≥ $30M."
-- **Gross Margin gauge**: "Net margin after stressed API costs. Green ≥ 40%."
-- **Break-even gauge**: "Months to profitability. Green ≤ 24 months."
-- **Color zone legend**: Replace emoji with labeled text: "Critical / Caution / Healthy"
+2. **`src/pages/Dashboard.tsx`** — Wallet-style rebuild:
+   - Balance as card element with animated counter
+   - Estimated uses grid (Chat: 742, Images: 148, etc.)
+   - "Create Something" action tiles
+   - Recent activity feed (not a table — visual cards)
+   - Keep auth integration and Partnerships nav link
+
+3. **`src/pages/Partnerships.tsx`** — Consolidate into tabbed view:
+   - Pipeline tab with phase cards, company tiers, negotiation curve, 30-day plan
+   - Pitch Deck tab with SWOT, unit economics, projections, scenarios, stress test (keep existing `FinancialModels.tsx`)
+   - Outreach tab with email templates + copy buttons
+   - Remove separate `PartnershipPitch.tsx` and `PartnershipOutreach.tsx` routes
+
+4. **Nav/Header** — Add to `Index.tsx` and shared layout:
+   - OmniCredits logo with gradient icon
+   - Theme toggle (sun/moon)
+   - "Send a Gift" primary CTA in nav
+
+### Route Changes (`App.tsx`)
+- Remove `/partnerships/pitch` and `/partnerships/outreach` routes (consolidated into `/partnerships` tabs)
+- All other routes stay the same
+
+### Files Preserved (no changes)
+- `src/components/FinancialModels.tsx` — Already built with interactive charts, tooltips, accessibility
+- `src/hooks/useAuth.tsx` — Auth logic unchanged
+- `src/integrations/supabase/*` — Unchanged
+- `src/pages/Purchase.tsx`, `src/pages/Redeem.tsx`, `src/pages/Auth.tsx` — Receive minor styling updates to match new theme but keep functionality
 
 ## Technical Details
-- **File changed**: `src/components/FinancialModels.tsx` only
-- **New imports**: `Tooltip, TooltipTrigger, TooltipContent, TooltipProvider` from `ui/tooltip`, `HoverCard, HoverCardTrigger, HoverCardContent` from `ui/hover-card`, `Info` from `lucide-react`
-- Create a small `InfoTip` inline component at the top of the file:
-  ```tsx
-  const InfoTip = ({ text }: { text: string }) => (
-    <Tooltip>
-      <TooltipTrigger asChild>
-        <Info className="h-3.5 w-3.5 text-muted-foreground/60 hover:text-primary cursor-help inline ml-1" />
-      </TooltipTrigger>
-      <TooltipContent className="max-w-[260px] text-xs">{text}</TooltipContent>
-    </Tooltip>
-  );
-  ```
-- Wrap the entire return of each panel in `<TooltipProvider delayDuration={200}>`
-- Add `InfoTip` next to every label, chart title, slider label, gauge label, and tab
-- Add a `HoverCard` on the assumptions footnote in ProjectionCharts with a detailed breakdown
-- Replace gauge emoji indicators (🔴🟡🟢) with styled text labels: "Critical", "Caution", "Healthy"
-- ~40 tooltip instances total across all 4 panels
+- Theme toggle uses CSS class strategy (already configured in Tailwind as `darkMode: "class"`)
+- All inline styles from the redesign file get converted to Tailwind classes
+- Glassmorphism via `backdrop-blur-xl bg-white/60 dark:bg-slate-800/60` pattern
+- Gift card tilt effect uses `onMouseMove` with CSS `perspective` + `rotateX/Y` transforms
+- Animated counter uses `requestAnimationFrame` with easing
+- Existing Recharts setup reused for all charts in FinancialModels and Pitch Deck
+- framer-motion kept for page transitions and scroll animations
+
+## Implementation Order
+1. Design system (tailwind config + CSS variables + ThemeProvider)
+2. Shared components (GlassCard, GiftCardVisual, etc.)
+3. Landing page rebuild
+4. Dashboard rebuild
+5. Partnerships consolidation
+6. Route cleanup + minor page style updates
 
