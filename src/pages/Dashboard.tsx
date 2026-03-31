@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { MessageSquare, Image, Video, Code, CreditCard, Gift, ArrowRight } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
 import CreditFeedback from "@/components/CreditFeedback";
 import AppHeader from "@/components/redesign/AppHeader";
 import AppFooter from "@/components/redesign/AppFooter";
